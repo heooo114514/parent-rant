@@ -1,0 +1,29 @@
+{
+  "site": {
+    "name": "ParentRant",
+    "description": "爸妈吐槽大会",
+    "icp": "粤ICP备2024334085号"
+  },
+  "security": {
+    "adminEmails": [
+      "3169581862@qq.com"
+    ],
+    "adminPassword": "cjl20100923",
+    "enableWhitelist": true
+  },
+  "email": {
+    "provider": "supabase", 
+    "smtp": {
+      "host": "smtp.example.com",
+      "port": 587,
+      "user": "user@example.com",
+      "pass": "password",
+      "secure": false
+    }
+  },
+  "features": {
+    "allowImageUploads": true,
+    "allowAnonymousComments": true,
+    "requireEmailVerification": false
+  }
+}
