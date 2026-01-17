@@ -48,7 +48,7 @@ export default function Header() {
           <div className="flex h-10 w-10 items-center justify-center border-2 border-black bg-[#00ff00] text-black shadow-[2px_2px_0_0_black] group-hover:shadow-none group-hover:translate-x-[2px] group-hover:translate-y-[2px] transition-all">
             <MessageSquarePlus size={24} />
           </div>
-          <span className="hidden sm:inline uppercase">ParentRant</span>
+          <span className="hidden sm:inline uppercase">吐了么</span>
         </Link>
 
         <div className="mx-4 flex-1 flex justify-center max-w-md">

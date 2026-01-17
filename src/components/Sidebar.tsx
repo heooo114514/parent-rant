@@ -86,7 +86,7 @@ export default function Sidebar({ currentCategory }: SidebarProps) {
           <h2 className="text-xl font-black uppercase tracking-tight">投喂开发者</h2>
         </div>
         <p className="mb-4 text-sm font-bold leading-relaxed border-l-4 border-black pl-4">
-          ParentRant 是一个由爱心家长（也是受害者）用爱发电建立的。
+          吐了么 是一个由爱心家长（也是受害者）用爱发电建立的。
         </p>
         <p className="mb-6 text-sm font-bold leading-relaxed">
           服务器要钱，咖啡要钱，被爸妈气得掉头发植发也要钱... 赏口饭吃吧！

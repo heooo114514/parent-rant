@@ -559,7 +559,7 @@ export default function AdminDashboardClient() {
       <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-black text-white border-r-4 border-black transition-transform duration-300 ease-in-out md:translate-x-0 hidden md:flex flex-col">
         <div className="flex h-16 items-center gap-2 px-6 font-bold text-xl border-b-2 border-white">
           <LayoutDashboard className="text-[#00ff00]" />
-          <span className="uppercase tracking-widest">ParentRant</span>
+          <span className="uppercase tracking-widest">吐了么</span>
         </div>
         
         <nav className="flex-1 space-y-2 px-3 py-6">
