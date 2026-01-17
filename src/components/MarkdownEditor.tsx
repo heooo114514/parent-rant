@@ -69,7 +69,7 @@ export default function MarkdownEditor({
       },
     },
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML())
+      onChange?.(editor.getHTML())
     },
   })
 

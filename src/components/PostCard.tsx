@@ -110,9 +110,12 @@ export default function PostCard({ post: initialPost, truncate = true }: PostCar
         <span className={cn(
           "border-2 border-black px-2 py-0.5 text-xs font-black uppercase shadow-[2px_2px_0_0_black]",
           post.category === 'school' ? 'bg-[#00ff00]' :
-          post.category === 'life' ? 'bg-yellow-300' :
-          post.category === 'money' ? 'bg-pink-300' :
-          post.category === 'social' ? 'bg-cyan-300' : 'bg-white'
+          post.category === 'homework' ? 'bg-yellow-300' :
+          post.category === 'relationship' ? 'bg-pink-300' :
+          post.category === 'funny' ? 'bg-cyan-300' :
+          post.category === 'teacher' ? 'bg-orange-300' :
+          post.category === 'parent' ? 'bg-purple-300' :
+          post.category === 'student' ? 'bg-blue-300' : 'bg-white'
         )}>
           {CATEGORY_LABELS[post.category] || '其他'}
         </span>

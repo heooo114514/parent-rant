@@ -87,7 +87,7 @@ export default function AdminDashboardClient() {
         const fetchInfo = async () => {
             const result = await devGetServerInfo()
             if (result.success && isMounted) {
-                setDevServerInfo(result.data)
+                setDevServerInfo(result.data || null)
             }
         }
         fetchInfo()
@@ -107,7 +107,7 @@ export default function AdminDashboardClient() {
       try {
           await devSetBypassMode(newState)
           const result = await devGetServerInfo() // Refresh info
-          if (result.success) setDevServerInfo(result.data)
+          if (result.success) setDevServerInfo(result.data || null)
           toast.success(newState ? '后门已开' : '后门锁死')
       } catch (e) {
           toast.error('后门坏了，打不开')
@@ -153,10 +153,10 @@ export default function AdminDashboardClient() {
       setIsHealthChecking(true)
       try {
           const result = await devHealthCheck()
-          if (result.success) {
-              setHealthChecks(result.data)
-              toast.success('体检做完了')
-          } else {
+      if (result.success) {
+          setHealthChecks(result.data || [])
+          toast.success('体检做完了')
+      } else {
               toast.error('医生跑路了')
           }
       } catch (e) {
@@ -279,7 +279,7 @@ export default function AdminDashboardClient() {
     try {
       const result = await devFetchTable(table)
       if (result.success) {
-        setDevTableData(result.data)
+        setDevTableData(result.data || [])
       } else {
         toast.error('查询失败: ' + result.message)
       }
@@ -296,8 +296,9 @@ export default function AdminDashboardClient() {
           if (result.success) {
               // Only update if data changed (simple length check for now)
               setDevTableStats(prev => {
-                  if (JSON.stringify(prev) === JSON.stringify(result.data)) return prev
-                  return result.data
+                  const newData = result.data || []
+                  if (JSON.stringify(prev) === JSON.stringify(newData)) return prev
+                  return newData
               })
           }
       } catch (e) {}
