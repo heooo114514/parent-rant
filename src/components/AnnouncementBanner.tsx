@@ -33,29 +33,31 @@ export default function AnnouncementBanner() {
   if (!isVisible || announcements.length === 0) return null
 
   return (
-    <div className="bg-blue-600 text-white px-4 py-3 relative overflow-hidden">
+    <div className="bg-[#00ff00] text-black border-b-2 border-black px-4 py-3 relative overflow-hidden font-mono font-bold">
       <div className="container mx-auto flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 flex-1 overflow-hidden">
-          <Megaphone size={20} className="shrink-0 animate-pulse" />
+          <div className="bg-black text-white p-1 border border-black">
+             <Megaphone size={16} className="shrink-0" />
+          </div>
           <div className="flex-1 relative h-6">
             <AnimatePresence mode="wait">
-              <motion.p
+              <motion.div
                 key={currentIndex}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="absolute inset-0 truncate font-medium text-sm sm:text-base flex items-center"
-              >
-                {announcements[currentIndex].content}
-              </motion.p>
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0 truncate text-sm sm:text-base flex items-center uppercase prose prose-sm prose-p:my-0 prose-p:inline prose-strong:text-black prose-a:text-blue-800 prose-a:underline max-w-none"
+                dangerouslySetInnerHTML={{ __html: announcements[currentIndex].content }}
+              />
             </AnimatePresence>
           </div>
         </div>
         <button 
           onClick={() => setIsVisible(false)}
-          className="text-white/80 hover:text-white shrink-0"
+          className="text-black hover:bg-black hover:text-white border-2 border-transparent hover:border-black shrink-0 transition-all p-0.5"
         >
-          <X size={18} />
+          <X size={20} />
         </button>
       </div>
     </div>

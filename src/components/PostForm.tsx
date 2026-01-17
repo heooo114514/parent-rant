@@ -10,7 +10,7 @@ import { EmojiStyle } from 'emoji-picker-react'
 
 const EmojiPicker = dynamic(
   () => import('emoji-picker-react').then((mod) => ({ default: mod.default })),
-  { ssr: false, loading: () => <Loader2 className="animate-spin text-slate-400" /> }
+  { ssr: false, loading: () => <Loader2 className="animate-spin text-black" /> }
 )
 
 import { toast } from 'sonner'
@@ -19,12 +19,12 @@ import MarkdownEditor from './MarkdownEditor'
 import { createPost } from '@/app/actions/post'
 
 const colors = [
-  { id: 'blue', class: 'bg-blue-100 border-blue-200' },
-  { id: 'green', class: 'bg-emerald-100 border-emerald-200' },
-  { id: 'purple', class: 'bg-purple-100 border-purple-200' },
-  { id: 'orange', class: 'bg-orange-100 border-orange-200' },
-  { id: 'pink', class: 'bg-pink-100 border-pink-200' },
-  { id: 'gray', class: 'bg-slate-100 border-slate-200' },
+  { id: 'blue', class: 'bg-blue-100 border-blue-200', activeClass: 'bg-blue-200' },
+  { id: 'green', class: 'bg-emerald-100 border-emerald-200', activeClass: 'bg-emerald-200' },
+  { id: 'purple', class: 'bg-purple-100 border-purple-200', activeClass: 'bg-purple-200' },
+  { id: 'orange', class: 'bg-orange-100 border-orange-200', activeClass: 'bg-orange-200' },
+  { id: 'pink', class: 'bg-pink-100 border-pink-200', activeClass: 'bg-pink-200' },
+  { id: 'gray', class: 'bg-slate-100 border-slate-200', activeClass: 'bg-slate-200' },
 ]
 
 const AUTO_SAVE_KEY = 'parentrant_draft_v1'
@@ -197,12 +197,12 @@ export default function PostForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
+    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6 font-mono">
       {/* Top Bar with Auto-save indicator */}
-      <div className="flex items-center justify-between text-sm text-slate-500 px-1">
+      <div className="flex items-center justify-between text-sm text-black px-1 font-bold">
         <div className="flex items-center gap-2">
           {lastSaved && (
-            <span className="flex items-center gap-1.5 text-xs bg-slate-100 px-2 py-1 rounded-full">
+            <span className="flex items-center gap-1.5 text-xs bg-white border-2 border-black px-2 py-1 shadow-[2px_2px_0_0_black]">
               <Save size={12} />
               草稿已保存于 {lastSaved.toLocaleTimeString()}
             </span>
@@ -212,13 +212,13 @@ export default function PostForm() {
           <button
             type="button"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className="text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-1 text-sm font-medium"
+            className="text-black hover:bg-[#ffc0cb] border-2 border-transparent hover:border-black transition-all flex items-center gap-1 text-sm font-black px-2 py-1"
           >
             <Smile size={18} />
             <span>插入表情</span>
           </button>
           {showEmojiPicker && (
-            <div className="absolute right-0 top-8 z-50 shadow-xl rounded-lg overflow-hidden border border-slate-200">
+            <div className="absolute right-0 top-8 z-50 shadow-[8px_8px_0_0_black] border-2 border-black bg-white">
               <div 
                 className="fixed inset-0 z-40" 
                 onClick={() => setShowEmojiPicker(false)}
@@ -245,7 +245,7 @@ export default function PostForm() {
           placeholder="请开始你的表演... (支持 Markdown 语法)"
           onImageUpload={uploadImageToSupabase}
           minHeight="min-h-[500px]"
-          className="shadow-md hover:shadow-lg transition-shadow duration-300"
+          className="shadow-[8px_8px_0_0_black] hover:translate-y-1 hover:shadow-[4px_4px_0_0_black] transition-all duration-300"
         />
         
         {/* Featured Image Preview (if uploaded via button below) */}
@@ -255,12 +255,12 @@ export default function PostForm() {
               <img 
                 src={imagePreview} 
                 alt="Preview" 
-                className="h-24 w-24 rounded-lg border-2 border-white shadow-md object-cover"
+                className="h-24 w-24 border-2 border-black shadow-[4px_4px_0_0_black] object-cover bg-white"
               />
               <button
                 type="button"
                 onClick={removeImage}
-                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md opacity-0 group-hover/image:opacity-100 transition-opacity"
+                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center border-2 border-black bg-red-600 text-white shadow-[2px_2px_0_0_black] opacity-0 group-hover/image:opacity-100 transition-opacity hover:bg-red-700"
               >
                 <X size={14} />
               </button>
@@ -270,11 +270,11 @@ export default function PostForm() {
       </div>
 
       {/* Bottom Settings Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-6 border-2 border-black shadow-[8px_8px_0_0_black]">
         {/* Settings Column */}
         <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <label htmlFor="nickname" className="text-sm font-bold text-slate-700">
+            <label htmlFor="nickname" className="text-sm font-black text-black uppercase">
               江湖代号
             </label>
             <input
@@ -283,19 +283,19 @@ export default function PostForm() {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="比如：朝阳区吴彦祖"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-slate-50"
+              className="w-full border-2 border-black px-3 py-2 text-sm text-black focus:bg-[#00ff00] focus:outline-none placeholder:text-gray-500 font-bold transition-colors"
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="category" className="text-sm font-bold text-slate-700">
+            <label htmlFor="category" className="text-sm font-black text-black uppercase">
               吐槽分类
             </label>
             <select
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value as Category)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-slate-50"
+              className="w-full border-2 border-black px-3 py-2 text-sm text-black focus:bg-[#00ff00] focus:outline-none font-bold transition-colors appearance-none"
             >
               {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -306,7 +306,7 @@ export default function PostForm() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700">
+            <label className="text-sm font-black text-black uppercase">
               卡片颜色
             </label>
             <div className="flex gap-2">
@@ -316,9 +316,9 @@ export default function PostForm() {
                   type="button"
                   onClick={() => setSelectedColor(color.id)}
                   className={cn(
-                    "h-8 w-8 rounded-full border-2 transition-all",
+                    "h-8 w-8 border-2 border-black transition-all",
                     color.class,
-                    selectedColor === color.id ? "ring-2 ring-blue-500 ring-offset-2 scale-110" : "hover:scale-105"
+                    selectedColor === color.id ? "ring-2 ring-black ring-offset-2 scale-110 shadow-[2px_2px_0_0_black]" : "hover:scale-105 hover:shadow-[2px_2px_0_0_black]"
                   )}
                   aria-label={`Select ${color.id} color`}
                 />
@@ -328,7 +328,7 @@ export default function PostForm() {
         </div>
 
         {/* Action Column */}
-        <div className="md:col-span-3 flex flex-col justify-end gap-3 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6">
+        <div className="md:col-span-3 flex flex-col justify-end gap-3 border-t-2 md:border-t-0 md:border-l-2 border-black pt-4 md:pt-0 md:pl-6">
            <div className="flex items-center gap-2 mb-auto">
              <input
                 type="file"
@@ -340,7 +340,7 @@ export default function PostForm() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 border-2 border-black bg-white px-4 py-2 text-sm font-black text-black hover:bg-black hover:text-white transition-all shadow-[4px_4px_0_0_black] hover:shadow-none hover:translate-y-1"
               >
                 <ImageIcon size={18} />
                 <span>添加封面</span>
@@ -350,7 +350,7 @@ export default function PostForm() {
            <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-blue-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95"
+            className="w-full flex items-center justify-center gap-2 border-2 border-black bg-[#00ff00] px-4 py-3 text-sm font-black text-black shadow-[4px_4px_0_0_black] hover:bg-white hover:shadow-none hover:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {isSubmitting ? (
               <>

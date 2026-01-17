@@ -28,7 +28,7 @@ export default function SearchInput() {
 
   return (
     <div className="relative hidden w-full max-w-xs md:block">
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-black z-10">
         <Search size={16} />
       </div>
       <input
@@ -44,7 +44,7 @@ export default function SearchInput() {
         }}
         onBlur={() => handleSearch(value)}
         placeholder="搜索吐槽..."
-        className="w-full rounded-full border border-slate-200 bg-slate-50 py-2 pl-9 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+        className="w-full rounded-none border-2 border-black bg-white py-2 pl-9 pr-4 text-sm text-black placeholder:text-gray-500 font-mono focus:bg-[#ffc0cb] focus:outline-none focus:shadow-[4px_4px_0px_0px_#00ff00] transition-all"
       />
     </div>
   )

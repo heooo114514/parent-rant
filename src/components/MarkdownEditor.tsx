@@ -18,7 +18,7 @@ import { toast } from 'sonner'
 
 interface MarkdownEditorProps {
   content: string
-  onChange: (content: string) => void
+  onChange?: (content: string) => void
   placeholder?: string
   onImageUpload?: (file: File) => Promise<string>
   className?: string
@@ -65,7 +65,7 @@ export default function MarkdownEditor({
     content,
     editorProps: {
       attributes: {
-        class: `prose prose-slate max-w-none focus:outline-none px-6 py-4 ${minHeight}`,
+        class: `prose prose-slate max-w-none focus:outline-none px-6 py-4 ${minHeight} font-mono`,
       },
     },
     onUpdate: ({ editor }) => {
@@ -140,8 +140,8 @@ export default function MarkdownEditor({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`p-2 rounded hover:bg-slate-100 transition-colors ${
-        isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-600'
+      className={`p-2 border-2 border-transparent hover:border-black transition-all ${
+        isActive ? 'bg-[#00ff00] text-black border-black shadow-[2px_2px_0_0_black]' : 'text-black hover:bg-white hover:shadow-[2px_2px_0_0_black]'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       title={title}
     >
@@ -149,12 +149,12 @@ export default function MarkdownEditor({
     </button>
   )
 
-  const Divider = () => <div className="w-px h-5 bg-slate-200 mx-1" />
+  const Divider = () => <div className="w-0.5 h-6 bg-black mx-1" />
 
   return (
-    <div className={`border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm flex flex-col ${className}`}>
+    <div className={`border-2 border-black bg-white flex flex-col ${className}`}>
       {/* Toolbar */}
-      <div className="flex items-center gap-1 border-b border-slate-100 bg-white p-2 flex-wrap sticky top-0 z-10">
+      <div className="flex items-center gap-1 border-b-2 border-black bg-white p-2 flex-wrap sticky top-0 z-10">
         <div className="flex items-center gap-0.5">
           <ToolbarButton
             onClick={() => editor.chain().focus().undo().run()}

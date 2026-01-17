@@ -9,6 +9,8 @@ import { User as SupabaseUser } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
+import AnnouncementBanner from './AnnouncementBanner'
+
 export default function Header() {
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -38,13 +40,15 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+    <>
+      <AnnouncementBanner />
+      <header className="sticky top-0 z-50 w-full border-b-4 border-black bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)]">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-slate-900">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
-            <MessageSquarePlus size={20} />
+        <Link href="/" className="flex items-center gap-2 text-xl font-black text-black tracking-tighter hover:underline decoration-4 underline-offset-4 group">
+          <div className="flex h-10 w-10 items-center justify-center border-2 border-black bg-[#00ff00] text-black shadow-[2px_2px_0_0_black] group-hover:shadow-none group-hover:translate-x-[2px] group-hover:translate-y-[2px] transition-all">
+            <MessageSquarePlus size={24} />
           </div>
-          <span className="hidden sm:inline">ParentRant: 爸妈吐槽大会</span>
+          <span className="hidden sm:inline uppercase">ParentRant</span>
         </Link>
 
         <div className="mx-4 flex-1 flex justify-center max-w-md">
@@ -54,52 +58,52 @@ export default function Header() {
         </div>
 
         <nav className="flex items-center gap-4 sm:gap-6">
-          <Link href="/about" className="hidden text-sm font-medium text-slate-600 hover:text-blue-600 sm:block">
+          <Link href="/about" className="hidden text-sm font-bold text-black hover:bg-black hover:text-white px-2 py-1 transition-colors sm:block">
             关于我们
           </Link>
-          <Link href="/support" className="hidden text-sm font-medium text-slate-600 hover:text-blue-600 sm:block">
-            投喂开发者
+          <Link href="/contact" className="hidden text-sm font-bold text-black hover:bg-black hover:text-white px-2 py-1 transition-colors sm:block">
+            联系我们
           </Link>
           
           {user ? (
             <div className="relative">
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 ring-2 ring-white transition-all hover:bg-slate-200 focus:outline-none focus:ring-blue-500"
+                className="flex h-10 w-10 items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white transition-all focus:outline-none"
               >
                 {user.user_metadata.avatar_url ? (
                   <img 
                     src={user.user_metadata.avatar_url} 
                     alt={user.email || 'User'} 
-                    className="h-9 w-9 rounded-full object-cover"
+                    className="h-full w-full object-cover border-2 border-transparent"
                   />
                 ) : (
-                  <User size={18} className="text-slate-600" />
+                  <User size={20} />
                 )}
               </button>
 
               {isMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl border border-slate-200 bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="truncate text-sm font-medium text-slate-900">{user.email}</p>
+                <div className="absolute right-0 mt-2 w-48 origin-top-right border-2 border-black bg-white py-0 shadow-hard focus:outline-none">
+                  <div className="px-4 py-3 border-b-2 border-black bg-yellow-300">
+                    <p className="truncate text-xs font-bold text-black uppercase">USER: {user.email?.split('@')[0]}</p>
                   </div>
                   <Link 
                     href="/new" 
-                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    className="block px-4 py-2 text-sm font-bold text-black hover:bg-black hover:text-white border-b-2 border-black"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     我要吐槽
                   </Link>
                   <Link 
                     href="/settings" 
-                    className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    className="block px-4 py-2 text-sm font-bold text-black hover:bg-black hover:text-white border-b-2 border-black"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     个人设置
                   </Link>
                   <button
                     onClick={handleSignOut}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm font-bold text-red-600 hover:bg-red-600 hover:text-white"
                   >
                     <LogOut size={14} />
                     溜了溜了
@@ -110,14 +114,15 @@ export default function Header() {
           ) : (
             <Link 
               href="/login" 
-              className="flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800"
+              className="brutalist-btn"
             >
-              <LogIn size={16} />
+              <LogIn size={16} className="mr-2" />
               <span className="hidden sm:inline">上号开喷</span>
             </Link>
           )}
         </nav>
       </div>
     </header>
+    </>
   )
 }

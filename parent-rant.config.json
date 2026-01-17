@@ -12,7 +12,7 @@
     "enableWhitelist": true
   },
   "email": {
-    "provider": "supabase", 
+    "provider": "supabase",
     "smtp": {
       "host": "smtp.example.com",
       "port": 587,

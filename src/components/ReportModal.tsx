@@ -57,15 +57,15 @@ export default function ReportModal({ postId, isOpen, onClose }: ReportModalProp
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl"
+            className="relative w-full max-w-md overflow-hidden rounded-none border-2 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
           >
             <div className="p-6">
-              <h3 className="text-lg font-bold text-slate-900 mb-2">
-                <RoughNotation type="highlight" show={true} color="#fde047" padding={2} animationDuration={1000}>
+              <h3 className="text-xl font-black text-black mb-2 uppercase tracking-tight">
+                <RoughNotation type="highlight" show={true} color="#00ff00" padding={2} animationDuration={1000}>
                   这是要搞事情？
                 </RoughNotation>
               </h3>
-              <p className="text-sm text-slate-500 mb-4">
+              <p className="text-sm font-bold font-mono text-gray-500 mb-4">
                 哎哟，这条吐槽是咋回事？来跟咱们唠唠。要是它真敢乱来，咱们立马把它清理门户！
               </p>
               
@@ -75,7 +75,7 @@ export default function ReportModal({ postId, isOpen, onClose }: ReportModalProp
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="快说说，这家伙哪里不对劲..."
                   rows={4}
-                  className="w-full rounded-lg border border-slate-200 p-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-none border-2 border-black p-3 text-sm font-mono focus:outline-none focus:shadow-[4px_4px_0px_0px_#ffc0cb] transition-all"
                   autoFocus
                 />
                 
@@ -83,7 +83,7 @@ export default function ReportModal({ postId, isOpen, onClose }: ReportModalProp
                   <button
                     type="button"
                     onClick={onClose}
-                    className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                    className="rounded-none border-2 border-black px-4 py-2 text-sm font-bold text-black hover:bg-slate-100 transition-all hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0 active:shadow-none"
                     disabled={isSubmitting}
                   >
                     算了，放过它
@@ -91,7 +91,7 @@ export default function ReportModal({ postId, isOpen, onClose }: ReportModalProp
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-none border-2 border-black bg-[#00ff00] px-4 py-2 text-sm font-black text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#00cc00] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50"
                   >
                     {isSubmitting && <Loader2 size={14} className="animate-spin" />}
                     正义执行！

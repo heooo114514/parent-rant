@@ -8,22 +8,30 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ currentCategory }: SidebarProps) {
+  const CATEGORY_COLORS: Record<string, string> = {
+    'school': 'bg-[#00ff00]', // Green
+    'life': 'bg-yellow-300',   // Yellow
+    'money': 'bg-pink-300',   // Pink
+    'social': 'bg-cyan-300',  // Cyan
+    'other': 'bg-orange-300'  // Orange
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Category Filter */}
-      <div className="rounded-xl bg-white p-6 shadow-sm border-b-2 border-slate-100">
-        <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-          <Filter className="text-blue-600" size={20} />
-          <h2 className="font-bold text-slate-900">分类浏览</h2>
+      <div className="brutalist-card p-6 bg-[#f0f0f0]">
+        <div className="mb-4 flex items-center gap-2 border-b-2 border-black pb-3">
+          <Filter className="text-black" size={24} />
+          <h2 className="text-xl font-black uppercase tracking-tight">分类浏览</h2>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link 
             href="/"
             className={cn(
-              "rounded-full px-3 py-1.5 text-sm transition-colors",
+              "border-2 border-black px-3 py-1.5 text-sm font-bold transition-all hover:-translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
               !currentCategory 
-                ? "bg-blue-600 text-white hover:bg-blue-700" 
-                : "bg-slate-100 text-slate-700 hover:bg-blue-100 hover:text-blue-700"
+                ? "bg-black text-white" 
+                : "bg-white text-black hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]"
             )}
           >
             全部
@@ -33,10 +41,10 @@ export default function Sidebar({ currentCategory }: SidebarProps) {
               key={value}
               href={`/?category=${value}`}
               className={cn(
-                "rounded-full px-3 py-1.5 text-sm transition-colors",
+                "border-2 border-black px-3 py-1.5 text-sm font-bold transition-all hover:-translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
                 currentCategory === value
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                  : "bg-slate-100 text-slate-700 hover:bg-blue-100 hover:text-blue-700"
+                  ? `${CATEGORY_COLORS[value] || 'bg-black'} text-black shadow-none translate-y-[2px] translate-x-[2px]`
+                  : `bg-white text-black hover:${CATEGORY_COLORS[value] || 'bg-black'} hover:text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]`
               )}
             >
               {label}
@@ -46,49 +54,49 @@ export default function Sidebar({ currentCategory }: SidebarProps) {
       </div>
 
       {/* Rules Card */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-          <ShieldCheck className="text-blue-600" size={20} />
-          <h2 className="font-bold text-slate-900">吐槽守则 (保命用)</h2>
+      <div className="brutalist-card p-6 bg-yellow-300">
+        <div className="mb-4 flex items-center gap-2 border-b-2 border-black pb-3">
+          <ShieldCheck className="text-black" size={24} />
+          <h2 className="text-xl font-black uppercase tracking-tight">吐槽守则</h2>
         </div>
-        <ul className="space-y-3 text-sm text-slate-600">
+        <ul className="space-y-3 text-sm font-bold text-black font-mono">
           <li className="flex gap-2">
-            <span className="flex-none font-bold text-blue-500">1.</span>
+            <span className="flex-none bg-black text-white w-6 h-6 flex items-center justify-center border-2 border-black">1</span>
             <span>别骂太难听，大家都是苦命人，留点口德。</span>
           </li>
           <li className="flex gap-2">
-            <span className="flex-none font-bold text-blue-500">2.</span>
+            <span className="flex-none bg-black text-white w-6 h-6 flex items-center justify-center border-2 border-black">2</span>
             <span>保护隐私，别爆真实姓名，小心被爸妈发现混合双打。</span>
           </li>
           <li className="flex gap-2">
-            <span className="flex-none font-bold text-blue-500">3.</span>
-            <span>发疯要适度，吐槽是为了更好地活着，不是为了气死自己。</span>
+            <span className="flex-none bg-black text-white w-6 h-6 flex items-center justify-center border-2 border-black">3</span>
+            <span>发疯要适度，吐槽是为了更好地活着。</span>
           </li>
           <li className="flex gap-2">
-            <span className="flex-none font-bold text-blue-500">4.</span>
+            <span className="flex-none bg-black text-white w-6 h-6 flex items-center justify-center border-2 border-black">4</span>
             <span>相互理解，每位家长都不容易（虽然有时候真的很气人）。</span>
           </li>
         </ul>
       </div>
 
       {/* Sponsorship Card */}
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
-        <div className="mb-4 flex items-center gap-2 border-b border-amber-200 pb-3">
-          <HeartHandshake className="text-amber-600" size={20} />
-          <h2 className="font-bold text-amber-900">投喂开发者</h2>
+      <div className="brutalist-card p-6 bg-white">
+        <div className="mb-4 flex items-center gap-2 border-b-2 border-black pb-3">
+          <HeartHandshake className="text-black" size={24} />
+          <h2 className="text-xl font-black uppercase tracking-tight">投喂开发者</h2>
         </div>
-        <p className="mb-4 text-sm leading-relaxed text-amber-800">
+        <p className="mb-4 text-sm font-bold leading-relaxed border-l-4 border-black pl-4">
           ParentRant 是一个由爱心家长（也是受害者）用爱发电建立的。
         </p>
-        <p className="mb-6 text-sm leading-relaxed text-amber-800">
+        <p className="mb-6 text-sm font-bold leading-relaxed">
           服务器要钱，咖啡要钱，被爸妈气得掉头发植发也要钱... 赏口饭吃吧！
         </p>
         
         <Link 
           href="/support"
-          className="group flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-3 font-semibold text-white transition-all hover:bg-amber-600 hover:shadow-md active:scale-95"
+          className="brutalist-btn w-full justify-center text-base uppercase tracking-wider bg-pink-400 hover:bg-black hover:text-pink-400 shadow-[4px_4px_0px_0px_black] hover:shadow-none transition-all"
         >
-          <Coffee size={18} className="transition-transform group-hover:-rotate-12" />
+          <Coffee size={20} className="mr-2" />
           <span>请喝冰美式消消火 ☕</span>
         </Link>
       </div>

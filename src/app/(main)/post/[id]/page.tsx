@@ -69,7 +69,7 @@ export default async function PostDetailPage({ params }: PageProps) {
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-blue-600">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-black uppercase">
           <ArrowLeft size={16} />
           <span>返回列表</span>
         </Link>
@@ -79,16 +79,16 @@ export default async function PostDetailPage({ params }: PageProps) {
         {/* Main Content */}
         <div className="lg:col-span-8 xl:col-span-9">
           {isMock && (
-            <div className="mb-6 rounded-lg bg-amber-50 p-4 text-sm text-amber-800 border border-amber-200">
-              <p className="font-semibold">⚠️ 演示模式</p>
-              <p>当前显示的是演示数据。</p>
+            <div className="mb-6 brutalist-card p-4 bg-yellow-300 text-black border-2 border-black">
+              <p className="font-black uppercase text-lg mb-1">⚠️ 演示模式启动</p>
+              <p className="font-mono font-bold">当前显示的是演示数据。</p>
             </div>
           )}
           
           <PostCard post={post} truncate={false} />
 
-          <div className="mt-8 rounded-xl bg-white p-6 shadow-sm border border-slate-200">
-            <h2 className="mb-6 text-xl font-bold text-slate-900">
+          <div className="mt-8 rounded-none bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] border-2 border-black">
+            <h2 className="mb-6 text-2xl font-black text-black uppercase tracking-tight">
               评论 ({comments.length})
             </h2>
             

@@ -3,7 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { Category } from '@/types'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
 
 const MAX_CONTENT_LENGTH = 10000
 const MAX_NICKNAME_LENGTH = 50
@@ -48,7 +48,11 @@ export async function createPost(data: CreatePostData): Promise<CreatePostResult
   const ip = headersList.get('x-forwarded-for')?.split(',')[0] || 'unknown'
   const supabase = await createClient()
 
-  if (ip !== 'unknown') {
+  // Dev Bypass Check
+  const cookieStore = await cookies()
+  const isBypass = process.env.NODE_ENV === 'development' && cookieStore.get('x-dev-bypass')?.value === 'true'
+
+  if (ip !== 'unknown' && !isBypass) {
     const { data: bannedIp } = await supabase
       .from('banned_ips')
       .select('id')

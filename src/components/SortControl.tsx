@@ -16,16 +16,16 @@ export default function SortControl() {
   }
 
   return (
-    <div className="mb-6 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
-      <span className="text-sm font-medium text-slate-500">排序方式</span>
+    <div className="mb-6 flex items-center justify-between rounded-none border-2 border-black bg-white px-4 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      <span className="text-sm font-bold text-black uppercase tracking-wider">排序方式</span>
       <div className="flex gap-2">
         <button
           onClick={() => handleSort('latest')}
           className={cn(
-            "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+            "flex items-center gap-1.5 rounded-none px-3 py-1.5 text-sm font-bold transition-all border-2",
             currentSort === 'latest' 
-              ? "bg-blue-50 text-blue-600" 
-              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              ? "bg-[#00ff00] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" 
+              : "text-gray-500 border-transparent hover:bg-[#ffc0cb] hover:text-black hover:border-black"
           )}
         >
           <Clock size={16} />
@@ -34,10 +34,10 @@ export default function SortControl() {
         <button
           onClick={() => handleSort('hottest')}
           className={cn(
-            "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+            "flex items-center gap-1.5 rounded-none px-3 py-1.5 text-sm font-bold transition-all border-2",
             currentSort === 'hottest' 
-              ? "bg-orange-50 text-orange-600" 
-              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              ? "bg-[#ffc0cb] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" 
+              : "text-gray-500 border-transparent hover:bg-[#ffc0cb] hover:text-black hover:border-black"
           )}
         >
           <Flame size={16} />

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/utils/supabase/server'
 import PostCard from './PostCard'
 import { Post } from '@/types'
 import { mockPosts } from '@/lib/mock-data'
@@ -19,6 +19,7 @@ export default async function PostList({ category, searchQuery, sort = 'latest' 
   let isMock = false
 
   try {
+    const supabase = await createClient()
     let query = supabase
       .from('posts')
       .select('*')
@@ -75,19 +76,19 @@ export default async function PostList({ category, searchQuery, sort = 'latest' 
       <SortControl />
       
       {isMock && (
-        <div className="mb-6 rounded-lg bg-amber-50 p-4 text-sm text-amber-800 border border-amber-200">
-          <p className="font-semibold">⚠️ 演示模式</p>
-          <p>由于未配置有效的数据库连接，当前显示的是演示数据。请参考 README 配置 Supabase 以启用完整功能。</p>
+        <div className="mb-6 brutalist-card p-4 bg-yellow-300 text-black border-2 border-black">
+          <p className="font-black uppercase text-lg mb-1">⚠️ 演示模式启动</p>
+          <p className="font-mono font-bold">由于未配置有效的数据库连接，当前显示的是演示数据。请配置 Supabase 以启用完整火力。</p>
         </div>
       )}
 
       {(!posts || posts.length === 0) ? (
-        <div className="flex h-60 w-full flex-col items-center justify-center gap-4 rounded-xl bg-slate-50 text-slate-500">
-          <p className="text-lg">
-            {searchQuery ? `没有找到包含 "${searchQuery}" 的吐槽` : '还没有人吐槽呢'}
+        <div className="flex h-60 w-full flex-col items-center justify-center gap-4 border-2 border-black border-dashed bg-slate-100 text-black p-8 text-center">
+          <p className="text-2xl font-black uppercase">
+            {searchQuery ? `没找到 "${searchQuery}"` : '一片荒芜'}
           </p>
-          <p className="text-sm">
-            {searchQuery ? '换个关键词试试？' : '快来当第一个吐槽的家长吧！'}
+          <p className="text-base font-bold font-mono">
+            {searchQuery ? '换个词喷喷看？' : '快来当第一个开喷的勇士！'}
           </p>
         </div>
       ) : (

@@ -2,22 +2,98 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #f8fafc; /* Slate-50 */
-  --foreground: #0f172a; /* Slate-900 */
+  --background: #ffffff;
+  --foreground: #000000;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-geist-mono); /* Force Mono as default */
   --font-mono: var(--font-geist-mono);
+  
+  /* Brutalist Shadows */
+  --shadow-hard: 4px 4px 0px 0px rgba(0,0,0,1);
+  --shadow-hard-sm: 2px 2px 0px 0px rgba(0,0,0,1);
+  --shadow-hard-lg: 8px 8px 0px 0px rgba(0,0,0,1);
 }
 
 body {
-  background: var(--background);
+  background: #fdf6e3; /* Light cream/yellowish background for more "tone" */
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-mono), system-ui, monospace;
   min-height: 100vh;
-  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-  background-size: 24px 24px;
+  /* Stronger, colored Grid Background */
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.05) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 2px, transparent 2px);
+  background-size: 40px 40px;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Global Reset for Brutalism */
+* {
+  border-radius: 0 !important; /* Kill all rounded corners */
+}
+
+.brutalist-card {
+  border: 2px solid black;
+  box-shadow: var(--shadow-hard);
+  transition: all 0.1s ease-in-out;
+  background: white;
+}
+
+.brutalist-card:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+}
+
+.brutalist-btn {
+  border: 2px solid black;
+  background: white;
+  color: black;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  box-shadow: var(--shadow-hard-sm);
+  transition: all 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brutalist-btn:hover {
+  background: black;
+  color: white;
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.brutalist-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.brutalist-input {
+  border: 2px solid black;
+  padding: 0.5rem;
+  outline: none;
+  background: white;
+  transition: box-shadow 0.2s;
+}
+
+.brutalist-input:focus {
+  box-shadow: var(--shadow-hard-sm);
 }
