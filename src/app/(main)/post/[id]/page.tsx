@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/utils/supabase/server'
 import { mockPosts, mockComments } from '@/lib/mock-data'
 import { Post, Comment } from '@/types'
 import { ArrowLeft } from 'lucide-react'
@@ -17,6 +17,7 @@ interface PageProps {
 
 export default async function PostDetailPage({ params }: PageProps) {
   const { id } = await params
+  const supabase = await createClient()
   
   let post: Post | null = null
   let comments: Comment[] = []

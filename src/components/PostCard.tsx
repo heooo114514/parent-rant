@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Heart, MessageCircle, Share2, Check, Flag } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/utils/supabase/client'
 import MarkdownRenderer from './MarkdownRenderer'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -33,6 +33,7 @@ export default function PostCard({ post: initialPost, truncate = true }: PostCar
   const [isCopied, setIsCopied] = useState(false)
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const colorClass = colorMap[post.color] || colorMap.gray
+  const supabase = createClient()
 
   // Safe date formatting
   const timeAgo = (() => {

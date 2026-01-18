@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/utils/supabase/client'
 import { cn } from '@/lib/utils'
 import { Loader2, Image as ImageIcon, X, Smile, Save, Send } from 'lucide-react'
 import dynamic from 'next/dynamic'
@@ -31,6 +31,7 @@ const AUTO_SAVE_KEY = 'parentrant_draft_v1'
 
 export default function PostForm() {
   const router = useRouter()
+  const supabase = createClient()
   const [content, setContent] = useState('')
   const [nickname, setNickname] = useState('')
   const [selectedColor, setSelectedColor] = useState('blue')
