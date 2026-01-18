@@ -37,7 +37,7 @@ export async function sendTestEmail(to: string) {
       await transporter.sendMail({
         from: `"${config.site.name}" <${config.email.smtp.user}>`,
         to,
-        subject: 'Test Email from ParentRant Admin',
+        subject: 'Test Email from Tuleme Admin',
         text: 'This is a test email to verify your SMTP settings.',
         html: '<b>This is a test email</b> to verify your SMTP settings.',
       })

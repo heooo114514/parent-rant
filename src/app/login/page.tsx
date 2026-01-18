@@ -124,7 +124,7 @@ export default function LoginPage() {
       <div className="brutalist-card w-full max-w-md space-y-8 p-8 bg-white">
         <div className="text-center">
           <h2 className="text-4xl font-black tracking-tighter text-black uppercase">
-            {isForgotPassword ? '重置密码' : (isSignUp ? '注册受害者账号' : '登录 ParentRant')}
+            {isForgotPassword ? '重置密码' : (isSignUp ? '注册受害者账号' : '登录 吐了么')}
           </h2>
           <p className="mt-2 text-sm font-bold font-mono text-gray-500">
             {isForgotPassword 

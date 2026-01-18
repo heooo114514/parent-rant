@@ -13,7 +13,7 @@ export default function SupportPage() {
         </div>
         <h1 className="text-3xl font-black text-black sm:text-4xl uppercase tracking-tighter">支持我们</h1>
         <p className="mt-4 text-lg font-bold text-gray-600">
-          如果您喜欢 ParentRant，欢迎请开发者喝杯咖啡，这将支持我们持续维护和更新。
+          如果您喜欢 吐了么，欢迎请开发者喝杯咖啡，这将支持我们持续维护和更新。
         </p>
       </div>
 
