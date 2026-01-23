@@ -45,8 +45,8 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b-4 border-black bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)]">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 text-xl font-black text-black tracking-tighter hover:underline decoration-4 underline-offset-4 group">
-          <div className="flex h-10 w-10 items-center justify-center border-2 border-black bg-[#00ff00] text-black shadow-[2px_2px_0_0_black] group-hover:shadow-none group-hover:translate-x-[2px] group-hover:translate-y-[2px] transition-all">
-            <MessageSquarePlus size={24} />
+          <div className="flex h-10 w-10 items-center justify-center border-2 border-black bg-[#00ff00] text-black shadow-[2px_2px_0_0_black] group-hover:shadow-none group-hover:translate-x-[2px] group-hover:translate-y-[2px] transition-all overflow-hidden">
+            <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover" />
           </div>
           <span className="hidden sm:inline uppercase">吐了么</span>
         </Link>
