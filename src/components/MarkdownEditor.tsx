@@ -8,8 +8,8 @@ import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import { Color } from '@tiptap/extension-color'
-import TextStyle from '@tiptap/extension-text-style'
-import Highlight from '@tiptap/extension-highlight'
+import { TextStyle } from '@tiptap/extension-text-style'
+import { Highlight } from '@tiptap/extension-highlight'
 import { 
   Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, 
   Image as ImageIcon, Loader2, Underline as UnderlineIcon, 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Post, CATEGORY_LABELS } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
@@ -35,15 +35,20 @@ export default function PostCard({ post: initialPost, truncate = true }: PostCar
   const colorClass = colorMap[post.color] || colorMap.gray
   const supabase = createClient()
 
+  const [timeAgo, setTimeAgo] = useState('')
+
   // Safe date formatting
-  const timeAgo = (() => {
+  useEffect(() => {
     try {
-      if (!post.created_at) return '刚刚'
-      return formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: zhCN })
+      if (!post.created_at) {
+        setTimeAgo('刚刚')
+        return
+      }
+      setTimeAgo(formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: zhCN }))
     } catch (e) {
-      return '刚刚'
+      setTimeAgo('刚刚')
     }
-  })()
+  }, [post.created_at])
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault()
