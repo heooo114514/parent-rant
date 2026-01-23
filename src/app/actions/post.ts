@@ -84,7 +84,7 @@ export async function createPost(data: CreatePostData): Promise<CreatePostResult
 
     if (error) {
       console.error('Supabase error:', error)
-      return { success: false, message: '发射失败！服务器可能被你的怨气冲坏了...' }
+      return { success: false, message: `发射失败！服务器可能被你的怨气冲坏了... (${error.message})` }
     }
 
     revalidatePath('/')
