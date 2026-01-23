@@ -7,11 +7,14 @@ import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
+import { Color } from '@tiptap/extension-color'
+import TextStyle from '@tiptap/extension-text-style'
+import Highlight from '@tiptap/extension-highlight'
 import { 
   Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, 
   Image as ImageIcon, Loader2, Underline as UnderlineIcon, 
   AlignLeft, AlignCenter, AlignRight, Link as LinkIcon, 
-  Undo, Redo, Strikethrough
+  Undo, Redo, Strikethrough, Highlighter, Palette
 } from 'lucide-react'
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { toast } from 'sonner'
@@ -60,6 +63,11 @@ export default function MarkdownEditor({
       Underline,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+      }),
+      TextStyle,
+      Color,
+      Highlight.configure({
+        multicolor: true,
       }),
     ],
     content,
@@ -151,6 +159,9 @@ export default function MarkdownEditor({
 
   const Divider = () => <div className="w-0.5 h-6 bg-black mx-1" />
 
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false)
+  const colors = ['#000000', '#EF4444', '#10B981', '#3B82F6', '#8B5CF6', '#F59E0B']
+
   return (
     <div className={`border-2 border-black bg-white flex flex-col ${className}`}>
       {/* Toolbar */}
@@ -169,6 +180,46 @@ export default function MarkdownEditor({
             title="重做"
           >
             <Redo size={18} />
+          </ToolbarButton>
+        </div>
+
+        <Divider />
+
+        <div className="flex items-center gap-0.5">
+          <div className="relative">
+            <ToolbarButton
+              onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
+              isActive={isColorPickerOpen}
+              title="文字颜色"
+            >
+              <Palette size={18} style={{ color: editor.getAttributes('textStyle').color || 'black' }} />
+            </ToolbarButton>
+            {isColorPickerOpen && (
+              <>
+                <div className="fixed inset-0 z-20" onClick={() => setIsColorPickerOpen(false)} />
+                <div className="absolute top-full left-0 mt-2 p-2 bg-white border-2 border-black shadow-[4px_4px_0_0_black] z-30 flex gap-1">
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => {
+                        editor.chain().focus().setColor(color).run()
+                        setIsColorPickerOpen(false)
+                      }}
+                      className="w-6 h-6 border-2 border-black hover:scale-110 transition-transform"
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHighlight().run()}
+            isActive={editor.isActive('highlight')}
+            title="高亮"
+          >
+            <Highlighter size={18} />
           </ToolbarButton>
         </div>
 

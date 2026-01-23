@@ -1,8 +1,21 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import rehypeSanitize from 'rehype-sanitize'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import { cn } from '@/lib/utils'
+
+// Custom schema to allow style attributes and mark tags
+const schema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), 'mark', 'span'],
+  attributes: {
+    ...defaultSchema.attributes,
+    span: ['style', 'className'],
+    mark: ['style', 'className'],
+    p: ['style', 'className'],
+    div: ['style', 'className'],
+  }
+}
 
 // Workaround for potential import issues with rehype-raw
 const safeRehypeRaw = rehypeRaw as any
@@ -34,7 +47,7 @@ export default function MarkdownRenderer({ content, className, limitHeight = fal
     )}>
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[safeRehypeRaw, rehypeSanitize]}
+        rehypePlugins={[safeRehypeRaw, [rehypeSanitize, schema]]}
         components={{
           a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />
         }}
