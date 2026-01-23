@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { MessageSquarePlus, LogIn, User, LogOut } from 'lucide-react'
+import { LogIn, User, LogOut } from 'lucide-react'
 import SearchInput from './SearchInput'
 import { Suspense, useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
