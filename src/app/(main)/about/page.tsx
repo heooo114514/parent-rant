@@ -5,7 +5,7 @@ export default function AboutPage() {
   return (
     <main className="container mx-auto max-w-3xl px-4 py-12 font-mono">
       <div className="mb-8 flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center border-2 border-black bg-black text-white shadow-[4px_4px_0_0_#00ff00]">
+        <div className="flex h-12 w-12 items-center justify-center border-2 border-black bg-black text-white shadow-[4px_4px_0_0_var(--primary-color)]">
           <Info size={24} />
         </div>
         <h1 className="text-3xl font-black text-black uppercase tracking-tighter">关于我们</h1>
@@ -28,14 +28,14 @@ export default function AboutPage() {
           <h2 className="mb-4 text-xl font-black text-black uppercase">这破站的规矩</h2>
           <ul className="space-y-4 text-black">
             <li className="flex gap-3">
-              <div className="mt-1 h-3 w-3 flex-none border-2 border-black bg-[#00ff00]" />
+              <div className="mt-1 h-3 w-3 flex-none border-2 border-black bg-[var(--primary-color)]" />
               <div>
                 <span className="font-black text-black uppercase">关于隐私：</span>
                 <span className="font-bold">谁知道你是谁啊？不用注册，直接开喷。别担心被班主任请喝茶，也别怕被爸妈混合双打，主打一个安全。</span>
               </div>
             </li>
             <li className="flex gap-3">
-              <div className="mt-1 h-3 w-3 flex-none border-2 border-black bg-[#ffc0cb]" />
+              <div className="mt-1 h-3 w-3 flex-none border-2 border-black bg-[var(--secondary-color)]" />
               <div>
                 <span className="font-black text-black uppercase">关于广告：</span>
                 <span className="font-bold">放心，没那玩意儿。没有弱智算法猜你喜欢，也没弹窗恶心你。只有最真实的崩溃瞬间，纯粹得一塌糊涂。</span>
@@ -71,18 +71,18 @@ export default function AboutPage() {
           <div className="flex flex-col gap-4 sm:flex-row">
             <a 
               href="mailto:parentsuppet@1145game.cn" 
-              className="flex items-center justify-center gap-2 border-2 border-black bg-white px-6 py-3 font-black text-black transition-all hover:bg-[#00ff00] hover:shadow-[4px_4px_0_0_black] hover:-translate-y-1"
+              className="flex items-center justify-center gap-2 border-2 border-black bg-white px-6 py-3 font-black text-black transition-all hover:bg-[var(--primary-color)] hover:shadow-[4px_4px_0_0_black] hover:-translate-y-1"
             >
               <Mail size={18} />
               <span>发送邮件</span>
             </a>
-            <div className="flex items-center justify-center gap-2 border-2 border-black bg-white px-6 py-3 font-black text-black transition-all hover:bg-[#ffc0cb] hover:shadow-[4px_4px_0_0_black] hover:-translate-y-1">
+            <div className="flex items-center justify-center gap-2 border-2 border-black bg-white px-6 py-3 font-black text-black transition-all hover:bg-[var(--secondary-color)] hover:shadow-[4px_4px_0_0_black] hover:-translate-y-1">
               <MessageCircle size={18} />
               <span>站长QQ：3169581862</span>
             </div>
           </div>
         </section>
       </div>
-    </main>
+    </div>
   )
 }

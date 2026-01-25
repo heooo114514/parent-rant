@@ -4,10 +4,10 @@ import { Coffee, Heart } from 'lucide-react'
 
 export default function SupportPage() {
   return (
-    <main className="container mx-auto max-w-4xl px-4 py-12 font-mono">
+    <div className="container mx-auto max-w-4xl px-4 py-12 font-mono">
       <div className="mb-12 text-center">
         <div className="mb-4 flex justify-center">
-          <div className="flex h-16 w-16 items-center justify-center border-2 border-black bg-[#ffc0cb] text-black shadow-[4px_4px_0_0_black]">
+          <div className="flex h-16 w-16 items-center justify-center border-2 border-black bg-[var(--secondary-color)] text-black shadow-[4px_4px_0_0_black]">
             <Coffee size={32} />
           </div>
         </div>
@@ -77,7 +77,7 @@ export default function SupportPage() {
         </div>
       </div>
 
-      <div className="mt-12 border-2 border-black bg-[#00ff00] p-8 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+      <div className="mt-12 border-2 border-black bg-[var(--primary-color)] p-8 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
         <Heart className="mx-auto mb-4 text-black fill-white" size={32} />
         <h2 className="mb-2 text-xl font-black text-black uppercase">感谢您的支持</h2>
         <p className="mx-auto max-w-2xl text-black font-bold">
@@ -85,6 +85,6 @@ export default function SupportPage() {
           所有赞助将用于服务器维护、域名续费以及开发新的功能。
         </p>
       </div>
-    </main>
+    </div>
   )
 }

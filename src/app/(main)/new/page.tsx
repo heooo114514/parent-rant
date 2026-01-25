@@ -14,6 +14,6 @@ export default function NewPostPage() {
 
         <PostForm />
       </div>
-    </main>
+    </div>
   )
 }

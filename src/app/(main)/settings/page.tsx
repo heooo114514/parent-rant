@@ -160,7 +160,7 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-[-10px] right-[-10px] flex h-8 w-8 items-center justify-center rounded-none border-2 border-black bg-[#00ff00] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:outline-none"
+                className="absolute bottom-[-10px] right-[-10px] flex h-8 w-8 items-center justify-center rounded-none border-2 border-black bg-[var(--primary-color)] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:outline-none"
               >
                 <Camera size={16} />
               </button>
@@ -235,7 +235,7 @@ export default function SettingsPage() {
             <button
               onClick={updateProfile}
               disabled={updating}
-              className="brutalist-btn w-full sm:w-auto bg-[#00ff00] hover:bg-[#00cc00] text-lg px-8 py-3 uppercase tracking-wider"
+              className="brutalist-btn w-full sm:w-auto bg-[var(--primary-color)] hover:bg-[var(--secondary-color)] text-lg px-8 py-3 uppercase tracking-wider"
             >
               {updating ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} className="mr-2" />}
               保存修改

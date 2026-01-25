@@ -1,13 +1,22 @@
+'use client'
+
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Comment } from '@/types'
 import MarkdownRenderer from './MarkdownRenderer'
+import { useEffect, useState } from 'react'
 
 interface CommentListProps {
   comments: Comment[]
 }
 
 export default function CommentList({ comments }: CommentListProps) {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   if (comments.length === 0) {
     return (
       <div className="py-8 text-center text-slate-500">
@@ -23,13 +32,13 @@ export default function CommentList({ comments }: CommentListProps) {
           <div className="flex items-center justify-between text-sm">
             <span className="font-semibold text-slate-700">{comment.nickname || '匿名'}</span>
             <span className="text-xs text-slate-400">
-              {(() => {
+              {isMounted ? (() => {
                 try {
                   return formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: zhCN })
                 } catch {
                   return '刚刚'
                 }
-              })()}
+              })() : '加载中...'}
             </span>
           </div>
           <div className="text-slate-800 leading-relaxed text-sm">

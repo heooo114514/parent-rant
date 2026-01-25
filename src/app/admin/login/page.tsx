@@ -39,7 +39,6 @@ export default function AdminLoginPage() {
       if (!error) {
         toast.success('嘿，溜进来了')
         router.push('/admin')
-        router.refresh()
         return
       }
 
@@ -54,7 +53,6 @@ export default function AdminLoginPage() {
       if (result.success) {
         toast.success('老板好，密码对上了')
         router.push('/admin')
-        router.refresh()
       } else {
         // Show the Supabase error if config fallback also failed
         toast.error('没对上，再想想？')
@@ -88,14 +86,20 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full border-2 border-black py-3 pl-10 text-black placeholder:text-gray-500 focus:bg-[#00ff00] focus:outline-none focus:ring-0 sm:text-sm font-bold transition-colors"
+                className="block w-full border-2 border-black py-3 pl-10 text-black placeholder:text-gray-500 focus:outline-none focus:ring-0 sm:text-sm font-bold transition-colors"
+                style={{ 
+                  // @ts-ignore
+                  '--focus-bg': 'var(--primary-color)' 
+                }}
+                onFocus={(e) => e.target.style.backgroundColor = 'var(--primary-color)'}
+                onBlur={(e) => e.target.style.backgroundColor = ''}
                 placeholder="admin@example.com"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="sr-only">密码</label>
+            <label htmlFor="password" title="password" className="sr-only">密码</label>
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                 <Lock className="h-5 w-5 text-black" />
@@ -107,7 +111,13 @@ export default function AdminLoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full border-2 border-black py-3 pl-10 text-black placeholder:text-gray-500 focus:bg-[#00ff00] focus:outline-none focus:ring-0 sm:text-sm font-bold transition-colors"
+                className="block w-full border-2 border-black py-3 pl-10 text-black placeholder:text-gray-500 focus:outline-none focus:ring-0 sm:text-sm font-bold transition-colors"
+                style={{ 
+                  // @ts-ignore
+                  '--focus-bg': 'var(--primary-color)' 
+                }}
+                onFocus={(e) => e.target.style.backgroundColor = 'var(--primary-color)'}
+                onBlur={(e) => e.target.style.backgroundColor = ''}
                 placeholder="密码"
               />
             </div>

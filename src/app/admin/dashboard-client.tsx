@@ -24,9 +24,10 @@ import {
   getBannedIps,
   banIp,
   unbanIp,
-  deletePost
+  deletePost,
+  updateConfig
 } from '@/app/actions/admin'
-import { devFetchTable, devGetTableStats, devSetBypassMode, devGetServerInfo, devUpdateConfig, devBackupProject, devHealthCheck } from '@/app/actions/dev'
+import { devFetchTable, devGetTableStats, devSetBypassMode, devGetServerInfo, devUpdateConfig, devBackupProject, devHealthCheck, devDebugCall } from '@/app/actions/dev'
 import config from '../../../parent-rant.config.json'
 import MarkdownEditor from '@/components/MarkdownEditor'
 
@@ -43,24 +44,6 @@ export default function AdminDashboardClient() {
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [serverInfo, setServerInfo] = useState<any>(null)
   
-  // Render counter for debugging infinite renders
-  const renderCount = useRef(0)
-  const lastRenderTime = useRef(Date.now())
-  
-  renderCount.current += 1
-  
-  useEffect(() => {
-    const now = Date.now()
-    const timeSinceLastRender = now - lastRenderTime.current
-    lastRenderTime.current = now
-
-    if (renderCount.current > 100) {
-      console.error('Detected potential infinite render loop (>100 renders). Time since last: ' + timeSinceLastRender + 'ms')
-      // Reset counter after warning to avoid spamming but allow detecting new loops
-      if (renderCount.current > 200) renderCount.current = 0
-    }
-  })
-
   // LocalDev state
   const [devTableData, setDevTableData] = useState<any[]>([])
   const [devSelectedTable, setDevSelectedTable] = useState('posts')
@@ -77,6 +60,16 @@ export default function AdminDashboardClient() {
   const [isBackupLoading, setIsBackupLoading] = useState(false)
   const [healthChecks, setHealthChecks] = useState<any[]>([])
   const [isHealthChecking, setIsHealthChecking] = useState(false)
+  const [isUpdatingConfig, setIsUpdatingConfig] = useState(false)
+  const [editableConfig, setEditableConfig] = useState(config)
+  const [debugTarget, setDebugTarget] = useState('')
+  const [debugResult, setDebugResult] = useState<any>(null)
+  const [isDebugLoading, setIsDebugLoading] = useState(false)
+  const renderCount = useRef(0)
+  
+  if (process.env.NODE_ENV === 'development') {
+    renderCount.current++
+  }
 
   // Fetch Server Info when settings tab is active
   useEffect(() => {
@@ -223,7 +216,9 @@ export default function AdminDashboardClient() {
         toast.error(result.message || '获取媒体文件失败')
       }
     } catch (error) {
-      console.error('Failed to fetch media files:', error)
+      if (process.env.NODE_ENV !== 'development') {
+        console.error('Failed to fetch media files:', error)
+      }
       toast.error('获取媒体文件失败')
     }
   }, [])
@@ -233,7 +228,9 @@ export default function AdminDashboardClient() {
       const info = await getServerInfo()
       setServerInfo(info)
     } catch (error) {
-      console.error('Failed to fetch server info:', error)
+      if (process.env.NODE_ENV !== 'development') {
+        console.error('Failed to fetch server info:', error)
+      }
     }
   }, [])
 
@@ -244,7 +241,9 @@ export default function AdminDashboardClient() {
         setReports(result.data)
       }
     } catch (error) {
-      console.error('Failed to fetch reports:', error)
+      if (process.env.NODE_ENV !== 'development') {
+        console.error('Failed to fetch reports:', error)
+      }
     }
   }, [])
 
@@ -255,7 +254,9 @@ export default function AdminDashboardClient() {
         setAnnouncements(result.data)
       }
     } catch (error) {
-      console.error('Failed to fetch announcements:', error)
+      if (process.env.NODE_ENV !== 'development') {
+        console.error('Failed to fetch announcements:', error)
+      }
     }
   }, [])
 
@@ -272,14 +273,17 @@ export default function AdminDashboardClient() {
 
   const fetchDevData = useCallback(async (table: string) => {
     if (table === 'server_dev' || table === 'client_dev') {
-      setDevTableData(prev => prev.length === 0 ? prev : [])
       return
     }
     setDevTableLoading(true)
     try {
       const result = await devFetchTable(table)
       if (result.success) {
-        setDevTableData(result.data || [])
+        const newData = result.data || []
+        setDevTableData(prev => {
+          if (JSON.stringify(prev) === JSON.stringify(newData)) return prev
+          return newData
+        })
       } else {
         toast.error('查询失败: ' + result.message)
       }
@@ -293,10 +297,10 @@ export default function AdminDashboardClient() {
   const fetchDevStats = useCallback(async () => {
       try {
           const result = await devGetTableStats()
-          if (result.success) {
+          if (result.success && result.data) {
               // Only update if data changed (simple length check for now)
+              const newData = result.data
               setDevTableStats(prev => {
-                  const newData = result.data || []
                   if (JSON.stringify(prev) === JSON.stringify(newData)) return prev
                   return newData
               })
@@ -312,16 +316,18 @@ export default function AdminDashboardClient() {
       await fetchPosts()
       
       if (isMounted) {
-        // Load secondary data in parallel to save time, 
-        // though they still trigger individual state updates.
-        // In a more complex app, we'd use a single state object for these.
-        Promise.all([
-          fetchServerInfo(),
-          fetchMediaFiles(),
-          fetchReports(),
-          fetchAnnouncements(),
-          fetchBannedIps()
-        ])
+        // Load secondary data in parallel
+        try {
+          await Promise.all([
+            fetchServerInfo(),
+            fetchMediaFiles(),
+            fetchReports(),
+            fetchAnnouncements(),
+            fetchBannedIps()
+          ])
+        } catch (err) {
+          console.warn('部分后台数据加载失败，可能是权限或表不存在', err)
+        }
       }
     }
 
@@ -330,14 +336,14 @@ export default function AdminDashboardClient() {
     return () => {
       isMounted = false
     }
-  }, [fetchPosts, fetchServerInfo, fetchMediaFiles, fetchReports, fetchAnnouncements, fetchBannedIps])
+  }, []) // Run once on mount
 
   useEffect(() => {
     if (activeTab === 'localdev') {
         fetchDevStats()
         fetchDevData(devSelectedTable)
     }
-  }, [activeTab, devSelectedTable, fetchDevStats, fetchDevData])
+  }, [activeTab, devSelectedTable])
 
   const handleBanIp = async (ip: string, reason: string = '违反社区规定') => {
     if (!ip) {
@@ -372,6 +378,71 @@ export default function AdminDashboardClient() {
       }
     } catch (error) {
       toast.error('解封失败')
+    }
+  }
+
+  const handleUpdateConfig = async () => {
+    setIsUpdatingConfig(true)
+    try {
+      const result = await updateConfig(editableConfig)
+      if (result.success) {
+        toast.success('配置改好了，刷新一下看看效果！')
+        router.refresh()
+      } else {
+        toast.error('改坏了: ' + result.message)
+      }
+    } catch (error) {
+      toast.error('出错了，估计是网络或者权限问题')
+    } finally {
+      setIsUpdatingConfig(false)
+    }
+  }
+
+  const handleDebugCall = async (target?: string) => {
+    const finalTarget = target || debugTarget
+    if (!finalTarget) {
+      toast.error('调啥啊？你倒是写个名字啊')
+      return
+    }
+
+    setIsDebugLoading(true)
+    setDebugResult(null)
+    try {
+      const result = await devDebugCall(finalTarget)
+      
+      // 处理 cjs (Client JavaScript) 的本地执行
+      if (result.success && result.data?.__is_cjs) {
+        try {
+          const clientResult = eval(result.data.code)
+          setDebugResult({
+            ...result,
+            message: 'Client JS 执行成功',
+            data: clientResult
+          })
+          toast.success('客户端代码跑通了')
+        } catch (err) {
+          setDebugResult({
+            success: false,
+            message: `客户端代码报错: ${(err as Error).message}`,
+            data: null
+          })
+          toast.error('客户端代码炸了')
+        }
+        setIsDebugLoading(false)
+        return
+      }
+
+      setDebugResult(result)
+      if (result.success) {
+        toast.success(result.message || '调通了！牛逼')
+      } else {
+        toast.error(result.message || '调崩了，尴尬')
+      }
+    } catch (e) {
+      toast.error('彻底炸了')
+      setDebugResult({ success: false, message: (e as Error).message })
+    } finally {
+      setIsDebugLoading(false)
     }
   }
 
@@ -559,7 +630,7 @@ export default function AdminDashboardClient() {
       {/* Sidebar Navigation */}
       <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-black text-white border-r-4 border-black transition-transform duration-300 ease-in-out md:translate-x-0 hidden md:flex flex-col">
         <div className="flex h-16 items-center gap-2 px-6 font-bold text-xl border-b-2 border-white">
-          <LayoutDashboard className="text-[#00ff00]" />
+          <LayoutDashboard className="text-[var(--primary-color)]" />
           <span className="uppercase tracking-widest">吐了么</span>
         </div>
         
@@ -568,7 +639,7 @@ export default function AdminDashboardClient() {
             onClick={() => setActiveTab('posts')}
             className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-bold border-2 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 hover:shadow-none ${
               activeTab === 'posts' 
-                ? 'bg-[#00ff00] text-black border-white' 
+                ? 'bg-[var(--primary-color)] text-black border-white' 
                 : 'bg-black text-white border-white hover:bg-white hover:text-black'
             }`}
           >
@@ -580,7 +651,7 @@ export default function AdminDashboardClient() {
             onClick={() => setActiveTab('media')}
             className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-bold border-2 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 hover:shadow-none ${
               activeTab === 'media' 
-                ? 'bg-[#00ff00] text-black border-white' 
+                ? 'bg-[var(--primary-color)] text-black border-white' 
                 : 'bg-black text-white border-white hover:bg-white hover:text-black'
             }`}
           >
@@ -592,7 +663,7 @@ export default function AdminDashboardClient() {
             onClick={() => setActiveTab('reports')}
             className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-bold border-2 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 hover:shadow-none ${
               activeTab === 'reports' 
-                ? 'bg-[#00ff00] text-black border-white' 
+                ? 'bg-[var(--primary-color)] text-black border-white' 
                 : 'bg-black text-white border-white hover:bg-white hover:text-black'
             }`}
           >
@@ -604,7 +675,7 @@ export default function AdminDashboardClient() {
             onClick={() => setActiveTab('announcements')}
             className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-bold border-2 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 hover:shadow-none ${
               activeTab === 'announcements' 
-                ? 'bg-[#00ff00] text-black border-white' 
+                ? 'bg-[var(--primary-color)] text-black border-white' 
                 : 'bg-black text-white border-white hover:bg-white hover:text-black'
             }`}
           >
@@ -616,7 +687,7 @@ export default function AdminDashboardClient() {
             onClick={() => setActiveTab('security')}
             className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-bold border-2 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 hover:shadow-none ${
               activeTab === 'security' 
-                ? 'bg-[#00ff00] text-black border-white' 
+                ? 'bg-[var(--primary-color)] text-black border-white' 
                 : 'bg-black text-white border-white hover:bg-white hover:text-black'
             }`}
           >
@@ -628,7 +699,7 @@ export default function AdminDashboardClient() {
             onClick={() => setActiveTab('email')}
             className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-bold border-2 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 hover:shadow-none ${
               activeTab === 'email' 
-                ? 'bg-[#00ff00] text-black border-white' 
+                ? 'bg-[var(--primary-color)] text-black border-white' 
                 : 'bg-black text-white border-white hover:bg-white hover:text-black'
             }`}
           >
@@ -640,7 +711,7 @@ export default function AdminDashboardClient() {
             onClick={() => setActiveTab('settings')}
             className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-bold border-2 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 hover:shadow-none ${
               activeTab === 'settings' 
-                ? 'bg-[#00ff00] text-black border-white' 
+                ? 'bg-[var(--primary-color)] text-black border-white' 
                 : 'bg-black text-white border-white hover:bg-white hover:text-black'
             }`}
           >
@@ -652,7 +723,7 @@ export default function AdminDashboardClient() {
             onClick={() => setActiveTab('developer')}
             className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-bold border-2 transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-y-1 hover:shadow-none ${
               activeTab === 'developer' 
-                ? 'bg-[#00ff00] text-black border-white' 
+                ? 'bg-[var(--primary-color)] text-black border-white' 
                 : 'bg-black text-white border-white hover:bg-white hover:text-black'
             }`}
           >
@@ -695,7 +766,7 @@ export default function AdminDashboardClient() {
             <div className="flex-1 overflow-hidden">
               <p className="truncate text-sm font-bold text-white">管理员</p>
               <div className="flex flex-col">
-                 <p className="truncate text-xs text-[#00ff00]">
+                 <p className="truncate text-xs text-[var(--primary-color)]">
                   {config.security.adminEmails[0]}
                  </p>
                  <p className="text-[10px] text-yellow-300 mt-1">
@@ -736,7 +807,7 @@ export default function AdminDashboardClient() {
               {activeTab === 'developer' && 'DEV / 别乱动'}
               {activeTab === 'localdev' && 'LOCAL DEV / 别点'}
             </h2>
-            <Link href="/" className="text-sm font-bold text-black border-2 border-black px-3 py-1 hover:bg-[#00ff00] transition-colors shadow-[2px_2px_0_0_black] hover:shadow-none hover:translate-y-[2px]">
+            <Link href="/" className="text-sm font-bold text-black border-2 border-black px-3 py-1 hover:bg-[var(--primary-color)] transition-colors shadow-[2px_2px_0_0_black] hover:shadow-none hover:translate-y-[2px]">
               回前台瞅瞅 &rarr;
             </Link>
           </div>
@@ -751,7 +822,7 @@ export default function AdminDashboardClient() {
                  <div className="border-2 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
                    <h3 className="mb-4 text-xl font-black text-black uppercase">大概瞅瞅</h3>
                    <div className="grid grid-cols-2 gap-4">
-                     <div className="border-2 border-black bg-[#00ff00] p-4 text-center shadow-[4px_4px_0_0_black]">
+                     <div className="border-2 border-black bg-[var(--primary-color)] p-4 text-center shadow-[4px_4px_0_0_black]">
                        <div className="text-3xl font-black text-black">{posts.length}</div>
                        <div className="text-xs font-bold text-black uppercase">一共多少怨气</div>
                      </div>
@@ -777,7 +848,7 @@ export default function AdminDashboardClient() {
                            contentStyle={{ border: '2px solid black', borderRadius: '0', boxShadow: '4px 4px 0px 0px black', background: 'white' }}
                            itemStyle={{ color: 'black', fontWeight: 'bold' }}
                          />
-                         <Line type="monotone" dataKey="count" stroke="#000" strokeWidth={3} dot={{r: 4, fill: '#000', strokeWidth: 0}} activeDot={{r: 6, fill: '#00ff00', stroke: '#000', strokeWidth: 2}} />
+                         <Line type="monotone" dataKey="count" stroke="#000" strokeWidth={3} dot={{r: 4, fill: '#000', strokeWidth: 0}} activeDot={{r: 6, fill: 'var(--primary-color)', stroke: '#000', strokeWidth: 2}} />
                        </LineChart>
                      </ResponsiveContainer>
                    </div>
@@ -799,7 +870,7 @@ export default function AdminDashboardClient() {
                          />
                          <Bar dataKey="count" fill="#000" radius={[0, 0, 0, 0]}>
                             {stats.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#000' : '#00ff00'} stroke="#000" strokeWidth={2} />
+                              <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#000' : 'var(--primary-color)'} stroke="#000" strokeWidth={2} />
                             ))}
                          </Bar>
                        </BarChart>
@@ -1345,29 +1416,332 @@ export default function AdminDashboardClient() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="max-w-4xl mx-auto space-y-8 pb-12">
+               {/* 站点基本信息 */}
                <div className="border-2 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                  <h3 className="text-lg font-black text-black mb-4 uppercase">家底儿</h3>
-                  <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="p-4 bg-[#f0f0f0] border-2 border-black">
-                      <dt className="text-sm font-bold text-gray-600 uppercase">网站叫啥</dt>
-                      <dd className="mt-1 text-lg font-black text-black">{config.site.name}</dd>
+                  <h3 className="text-xl font-black text-black mb-6 uppercase flex items-center gap-2">
+                    <Settings className="text-blue-600" size={24} />
+                    站点家底儿
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-600 uppercase">网站叫啥</label>
+                        <input 
+                          type="text" 
+                          value={editableConfig.site.name}
+                          onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, name: e.target.value}})}
+                          className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-600 uppercase">身份证号 (ICP)</label>
+                        <input 
+                          type="text" 
+                          value={editableConfig.site.icp}
+                          onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, icp: e.target.value}})}
+                          className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                        />
+                      </div>
                     </div>
-                    <div className="p-4 bg-[#f0f0f0] border-2 border-black">
-                      <dt className="text-sm font-bold text-gray-600 uppercase">身份证号 (ICP)</dt>
-                      <dd className="mt-1 text-lg font-black text-black">{config.site.icp || '没户口'}</dd>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-600 uppercase">网站简介</label>
+                      <textarea 
+                        value={editableConfig.site.description}
+                        onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, description: e.target.value}})}
+                        className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors min-h-[80px]"
+                      />
                     </div>
-                    <div className="p-4 bg-[#f0f0f0] border-2 border-black">
-                      <dt className="text-sm font-bold text-gray-600 uppercase">头儿的邮箱</dt>
-                      <dd className="mt-1 text-lg font-black text-black">{config.security.adminEmails[0]}</dd>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-600 uppercase">顶部公告</label>
+                      <input 
+                        type="text" 
+                        value={editableConfig.site.announcement}
+                        onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, announcement: e.target.value}})}
+                        className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                      />
                     </div>
-                    <div className="p-4 bg-[#f0f0f0] border-2 border-black">
-                      <dt className="text-sm font-bold text-gray-600 uppercase">能不能传图</dt>
-                      <dd className="mt-1 text-lg font-black text-black">
-                        {config.features.allowImageUploads ? '✅ 已启用' : '❌ 已禁用'}
-                      </dd>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-600 uppercase">页脚文字</label>
+                      <input 
+                        type="text" 
+                        value={editableConfig.site.footer}
+                        onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, footer: e.target.value}})}
+                        className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                      />
                     </div>
-                  </dl>
+
+                    <div className="border-t-2 border-black pt-6 mt-6">
+                      <h4 className="text-lg font-black text-black mb-4 uppercase">文案定制 (各种提示语)</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">演示模式标题</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.site.demoModeTitle}
+                            onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, demoModeTitle: e.target.value}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">演示模式信息</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.site.demoModeMessage}
+                            onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, demoModeMessage: e.target.value}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">没内容时的标题</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.site.emptyTitle}
+                            onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, emptyTitle: e.target.value}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">没内容时的信息</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.site.emptyMessage}
+                            onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, emptyMessage: e.target.value}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">没搜到时的标题</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.site.notFoundTitle}
+                            onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, notFoundTitle: e.target.value}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">没搜到时的信息</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.site.notFoundMessage}
+                            onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, notFoundMessage: e.target.value}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">默认匿名昵称</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.site.defaultNickname}
+                            onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, defaultNickname: e.target.value}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">分享标题</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.site.shareTitle}
+                            onChange={(e) => setEditableConfig({...editableConfig, site: {...editableConfig.site, shareTitle: e.target.value}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t-2 border-black pt-6 mt-6">
+                      <h4 className="text-lg font-black text-black mb-4 uppercase">侧边栏内容 (吐槽守则 & 投喂)</h4>
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">吐槽守则 (每行一条)</label>
+                          <textarea 
+                            value={editableConfig.content.rules.join('\n')}
+                            onChange={(e) => setEditableConfig({...editableConfig, content: {...editableConfig.content, rules: e.target.value.split('\n').filter(r => r.trim())}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors min-h-[120px]"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-600 uppercase">投喂标题</label>
+                            <input 
+                              type="text" 
+                              value={editableConfig.content.sponsorship.title}
+                              onChange={(e) => setEditableConfig({...editableConfig, content: {...editableConfig.content, sponsorship: {...editableConfig.content.sponsorship, title: e.target.value}}})}
+                              className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-600 uppercase">投喂按钮文案</label>
+                            <input 
+                              type="text" 
+                              value={editableConfig.content.sponsorship.button}
+                              onChange={(e) => setEditableConfig({...editableConfig, content: {...editableConfig.content, sponsorship: {...editableConfig.content.sponsorship, button: e.target.value}}})}
+                              className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">投喂描述 1</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.content.sponsorship.p1}
+                            onChange={(e) => setEditableConfig({...editableConfig, content: {...editableConfig.content, sponsorship: {...editableConfig.content.sponsorship, p1: e.target.value}}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-gray-600 uppercase">投喂描述 2</label>
+                          <input 
+                            type="text" 
+                            value={editableConfig.content.sponsorship.p2}
+                            onChange={(e) => setEditableConfig({...editableConfig, content: {...editableConfig.content, sponsorship: {...editableConfig.content.sponsorship, p2: e.target.value}}})}
+                            className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+               </div>
+
+               {/* 功能开关 */}
+               <div className="border-2 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                  <h3 className="text-xl font-black text-black mb-6 uppercase flex items-center gap-2">
+                    <Shield className="text-green-600" size={24} />
+                    功能实验室
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center justify-between p-4 bg-[#f0f0f0] border-2 border-black">
+                      <span className="font-bold text-black uppercase">允许上传图片</span>
+                      <button 
+                        onClick={() => setEditableConfig({...editableConfig, features: {...editableConfig.features, allowImageUploads: !editableConfig.features.allowImageUploads}})}
+                        className={`px-4 py-2 border-2 border-black font-black transition-all ${editableConfig.features.allowImageUploads ? 'bg-[#00ff00] translate-x-[2px] translate-y-[2px] shadow-none' : 'bg-white shadow-[2px_2px_0px_0px_black]'}`}
+                      >
+                        {editableConfig.features.allowImageUploads ? '已开启' : '已禁用'}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-[#f0f0f0] border-2 border-black">
+                      <span className="font-bold text-black uppercase">允许匿名评论</span>
+                      <button 
+                        onClick={() => setEditableConfig({...editableConfig, features: {...editableConfig.features, allowAnonymousComments: !editableConfig.features.allowAnonymousComments}})}
+                        className={`px-4 py-2 border-2 border-black font-black transition-all ${editableConfig.features.allowAnonymousComments ? 'bg-[#00ff00] translate-x-[2px] translate-y-[2px] shadow-none' : 'bg-white shadow-[2px_2px_0px_0px_black]'}`}
+                      >
+                        {editableConfig.features.allowAnonymousComments ? '已开启' : '已禁用'}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-[#f0f0f0] border-2 border-black">
+                      <span className="font-bold text-black uppercase">强制邮箱验证</span>
+                      <button 
+                        onClick={() => setEditableConfig({...editableConfig, features: {...editableConfig.features, requireEmailVerification: !editableConfig.features.requireEmailVerification}})}
+                        className={`px-4 py-2 border-2 border-black font-black transition-all ${editableConfig.features.requireEmailVerification ? 'bg-red-500 text-white translate-x-[2px] translate-y-[2px] shadow-none' : 'bg-white shadow-[2px_2px_0px_0px_black]'}`}
+                      >
+                        {editableConfig.features.requireEmailVerification ? '已开启' : '已禁用'}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-[#f0f0f0] border-2 border-black">
+                      <span className="font-bold text-black uppercase">开启全局评论</span>
+                      <button 
+                        onClick={() => setEditableConfig({...editableConfig, features: {...editableConfig.features, enableComments: !editableConfig.features.enableComments}})}
+                        className={`px-4 py-2 border-2 border-black font-black transition-all ${editableConfig.features.enableComments ? 'bg-[#00ff00] translate-x-[2px] translate-y-[2px] shadow-none' : 'bg-white shadow-[2px_2px_0px_0px_black]'}`}
+                      >
+                        {editableConfig.features.enableComments ? '已开启' : '已禁用'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-600 uppercase">每页显示吐槽数</label>
+                      <input 
+                        type="number" 
+                        value={editableConfig.features.postsPerPage}
+                        onChange={(e) => setEditableConfig({...editableConfig, features: {...editableConfig.features, postsPerPage: parseInt(e.target.value)}})}
+                        className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-600 uppercase">每个 IP 每日发帖上限</label>
+                      <input 
+                        type="number" 
+                        value={editableConfig.security.maxPostsPerDay}
+                        onChange={(e) => setEditableConfig({...editableConfig, security: {...editableConfig.security, maxPostsPerDay: parseInt(e.target.value)}})}
+                        className="w-full border-2 border-black p-3 font-bold focus:bg-yellow-100 outline-none transition-colors"
+                      />
+                    </div>
+                  </div>
+               </div>
+
+               {/* 视觉设计 */}
+               <div className="border-2 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                  <h3 className="text-xl font-black text-black mb-6 uppercase flex items-center gap-2">
+                    <ImageIcon className="text-pink-600" size={24} />
+                    面子工程
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-600 uppercase">主色调 (Primary)</label>
+                      <div className="flex gap-2">
+                        <input 
+                          type="color" 
+                          value={editableConfig.ui.primaryColor}
+                          onChange={(e) => setEditableConfig({...editableConfig, ui: {...editableConfig.ui, primaryColor: e.target.value}})}
+                          className="h-12 w-12 border-2 border-black cursor-pointer"
+                        />
+                        <input 
+                          type="text" 
+                          value={editableConfig.ui.primaryColor}
+                          onChange={(e) => setEditableConfig({...editableConfig, ui: {...editableConfig.ui, primaryColor: e.target.value}})}
+                          className="flex-1 border-2 border-black p-2 font-mono font-bold uppercase"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-600 uppercase">副色调 (Secondary)</label>
+                      <div className="flex gap-2">
+                        <input 
+                          type="color" 
+                          value={editableConfig.ui.secondaryColor}
+                          onChange={(e) => setEditableConfig({...editableConfig, ui: {...editableConfig.ui, secondaryColor: e.target.value}})}
+                          className="h-12 w-12 border-2 border-black cursor-pointer"
+                        />
+                        <input 
+                          type="text" 
+                          value={editableConfig.ui.secondaryColor}
+                          onChange={(e) => setEditableConfig({...editableConfig, ui: {...editableConfig.ui, secondaryColor: e.target.value}})}
+                          className="flex-1 border-2 border-black p-2 font-mono font-bold uppercase"
+                        />
+                      </div>
+                    </div>
+                  </div>
+               </div>
+
+               {/* 保存按钮 */}
+               <div className="sticky bottom-8 z-10 flex justify-end">
+                  <button 
+                    onClick={handleUpdateConfig}
+                    disabled={isUpdatingConfig}
+                    className="group relative inline-flex items-center gap-3 border-4 border-black bg-[#00ff00] px-10 py-5 text-2xl font-black uppercase text-black transition-all hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_black] active:translate-x-0 active:translate-y-0 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isUpdatingConfig ? (
+                      <>
+                        <Loader2 className="animate-spin" size={24} />
+                        保存中...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle size={24} />
+                        更新家底儿
+                      </>
+                    )}
+                  </button>
                </div>
             </div>
           )}
@@ -1412,6 +1786,102 @@ export default function AdminDashboardClient() {
                       <div className="flex items-center gap-2 text-black font-bold">
                         <Loader2 size={14} className="animate-spin" />
                         等会儿，正查着呢...
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Next Debug Call & tlm-cli */}
+                  <div className="border-2 border-black bg-white p-4">
+                    <h4 className="font-black text-black mb-4 uppercase flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Terminal size={18} className="text-[var(--primary-color)]" />
+                        Next Debug Call / tlm-cli
+                      </div>
+                      <button 
+                        onClick={() => handleDebugCall('help')}
+                        className="text-[10px] px-2 py-1 bg-black text-white hover:bg-[var(--primary-color)] hover:text-black transition-colors"
+                      >
+                        [查看指令集]
+                      </button>
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <button 
+                        onClick={() => handleDebugCall('backup')}
+                        disabled={isDebugLoading}
+                        className="px-4 py-3 border-2 border-black bg-pink-300 font-bold hover:shadow-[4px_4px_0_0_black] hover:-translate-y-1 active:translate-y-0 active:shadow-none transition-all text-xs uppercase flex items-center justify-center gap-2"
+                      >
+                        <Shield size={14} /> 备个份 (Backup)
+                      </button>
+                      <button 
+                        onClick={() => handleDebugCall('health')}
+                        disabled={isDebugLoading}
+                        className="px-4 py-3 border-2 border-black bg-green-300 font-bold hover:shadow-[4px_4px_0_0_black] hover:-translate-y-1 active:translate-y-0 active:shadow-none transition-all text-xs uppercase flex items-center justify-center gap-2"
+                      >
+                        <AlertTriangle size={14} /> 体检 (Health)
+                      </button>
+                      <button 
+                        onClick={() => handleDebugCall('db stats')}
+                        disabled={isDebugLoading}
+                        className="px-4 py-3 border-2 border-black bg-blue-300 font-bold hover:shadow-[4px_4px_0_0_black] hover:-translate-y-1 active:translate-y-0 active:shadow-none transition-all text-xs uppercase flex items-center justify-center gap-2"
+                      >
+                        <BarChartIcon size={14} /> 数数 (DB Stats)
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="block text-xs font-black text-gray-600 uppercase">
+                        输入指令或 URL (e.g. <code className="bg-gray-200 px-1">help</code>, <code className="bg-gray-200 px-1">config list</code>, <code className="bg-gray-200 px-1">/api/hello</code>)
+                      </label>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          value={debugTarget}
+                          onChange={(e) => setDebugTarget(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleDebugCall()}
+                          placeholder="指令在这儿写，按回车也行..."
+                          className="flex-1 border-2 border-black px-4 py-2 font-mono text-sm font-bold focus:bg-yellow-100 outline-none"
+                        />
+                        <button 
+                          onClick={() => handleDebugCall()}
+                          disabled={isDebugLoading || !debugTarget}
+                          className="px-6 py-2 bg-black text-white font-black border-2 border-black hover:bg-[var(--primary-color)] hover:text-black transition-all disabled:opacity-50 shadow-[4px_4px_0_0_black] active:shadow-none active:translate-x-1 active:translate-y-1"
+                        >
+                          {isDebugLoading ? <Loader2 className="animate-spin" size={18} /> : '执行!'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {debugResult && (
+                      <div className="mt-6 border-2 border-black bg-black p-4 overflow-x-auto relative min-h-[100px]">
+                        <div className="absolute top-2 right-2 flex gap-2">
+                          <button 
+                            onClick={() => {
+                              if (debugResult?.data) {
+                                navigator.clipboard.writeText(JSON.stringify(debugResult.data, null, 2))
+                                toast.success('复制好啦')
+                              }
+                            }}
+                            className="text-[10px] px-2 py-0.5 bg-blue-600 text-white border border-white font-bold"
+                          >
+                            拿走 (COPY)
+                          </button>
+                          <button 
+                            onClick={() => setDebugResult(null)}
+                            className="text-[10px] px-2 py-0.5 bg-red-600 text-white border border-white font-bold"
+                          >
+                            滚犊子 (CLEAR)
+                          </button>
+                          <div className="text-[10px] px-2 py-0.5 bg-white text-black border border-black font-bold uppercase">
+                            {debugResult.success ? 'Success' : 'Error'}
+                          </div>
+                        </div>
+                        <div className="text-[10px] text-gray-500 font-mono mb-2 border-b border-gray-800 pb-1">
+                          {new Date().toLocaleTimeString()} - {debugResult.message || 'Result:'}
+                        </div>
+                        <pre className="text-xs text-[var(--primary-color)] font-mono leading-relaxed">
+                          {debugResult.data ? JSON.stringify(debugResult.data, null, 2) : (debugResult.message || 'Done.')}
+                        </pre>
                       </div>
                     )}
                   </div>

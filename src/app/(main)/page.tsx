@@ -5,6 +5,7 @@ import { PenLine } from 'lucide-react'
 import { Suspense } from 'react'
 import PostSkeleton from '@/components/PostSkeleton'
 import TiltButton from '@/components/TiltButton'
+import config from '../../../parent-rant.config.json'
 
 interface PageProps {
   searchParams: Promise<{ 
@@ -18,30 +19,49 @@ export default async function Home({ searchParams }: PageProps) {
   const { category, q, sort } = await searchParams
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
       {!q && (
         <div className="mb-12 flex flex-col items-center justify-center gap-6 text-center relative py-10">
           {/* Decorative shapes for "tone" */}
           <div className="absolute top-0 left-1/4 w-12 h-12 bg-yellow-400 border-2 border-black -rotate-12 -z-10 hidden sm:block"></div>
-          <div className="absolute bottom-0 right-1/4 w-16 h-16 bg-[#00ff00] border-2 border-black rotate-12 -z-10 hidden sm:block"></div>
+          <div 
+            className="absolute bottom-0 right-1/4 w-16 h-16 border-2 border-black rotate-12 -z-10 hidden sm:block"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          ></div>
           <div className="absolute top-1/2 -left-4 w-10 h-10 bg-pink-400 border-2 border-black rotate-45 -z-10 hidden lg:block"></div>
 
-          <h1 className="text-6xl font-black tracking-tighter text-black sm:text-8xl uppercase drop-shadow-[4px_4px_0px_#00ff00]">
-            爸妈吐槽大会
+          <h1 
+            className="text-6xl font-black tracking-tighter text-black sm:text-8xl uppercase"
+            style={{ 
+              // @ts-ignore
+              textShadow: '4px 4px 0px var(--primary-color)' 
+            }}
+          >
+            {config.site.name}
           </h1>
           <div className="relative group">
             <div className="absolute -inset-2 bg-black -rotate-1 group-hover:rotate-1 transition-transform"></div>
-            <p className="relative max-w-xl text-xl font-mono font-bold text-black border-2 border-black p-6 bg-white shadow-[8px_8px_0px_0px_#ffc0cb]">
-              作业写不完？家长太唠叨？老师管太宽？
-              <br />
-              <span className="text-pink-600">来这里发疯发癫，寻找你的吐槽搭子！</span>
+            <p 
+              className="relative max-w-xl text-xl font-mono font-bold text-black border-2 border-black p-6 bg-white shadow-[8px_8px_0px_0px_var(--secondary-color)]"
+            >
+              {config.site.description.split('？').map((part, i, arr) => (
+                <span key={i}>
+                  {part}{i < arr.length - 1 ? '？' : ''}
+                  {i === 1 && <br />}
+                </span>
+              ))}
             </p>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
             <TiltButton>
               <Link 
                 href="/new" 
-                className="brutalist-btn text-xl px-10 py-5 bg-[#00ff00] text-black hover:bg-black hover:text-[#00ff00] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
+                className="brutalist-btn text-xl px-10 py-5 text-black hover:bg-black transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
+                style={{ 
+                  backgroundColor: 'var(--primary-color)',
+                  // @ts-ignore
+                  '--hover-color': 'var(--primary-color)'
+                }}
               >
                 <PenLine size={28} className="mr-2" />
                 <span className="uppercase tracking-widest">我要开喷</span>
@@ -86,6 +106,6 @@ export default async function Home({ searchParams }: PageProps) {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

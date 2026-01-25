@@ -17,6 +17,7 @@ import { toast } from 'sonner'
 import { CATEGORY_LABELS, Category } from '@/types'
 import MarkdownEditor from './MarkdownEditor'
 import { createPost } from '@/app/actions/post'
+import config from '../../parent-rant.config.json'
 
 const colors = [
   { id: 'blue', class: 'bg-blue-100 border-blue-200', activeClass: 'bg-blue-200' },
@@ -186,9 +187,8 @@ export default function PostForm() {
       setNickname('')
       setCategory('other')
       removeImage()
-      router.push('/')
-      router.refresh()
       toast.success(result.message)
+      router.push('/')
     } catch (error: any) {
       console.error('Error creating post:', error)
       toast.error('发布失败，请稍后重试')
@@ -213,7 +213,7 @@ export default function PostForm() {
           <button
             type="button"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className="text-black hover:bg-[#ffc0cb] border-2 border-transparent hover:border-black transition-all flex items-center gap-1 text-sm font-black px-2 py-1"
+            className="text-black hover:bg-[var(--secondary-color)] border-2 border-transparent hover:border-black transition-all flex items-center gap-1 text-sm font-black px-2 py-1"
           >
             <Smile size={18} />
             <span>插入表情</span>
@@ -284,7 +284,13 @@ export default function PostForm() {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="比如：朝阳区吴彦祖"
-              className="w-full border-2 border-black px-3 py-2 text-sm text-black focus:bg-[#00ff00] focus:outline-none placeholder:text-gray-500 font-bold transition-colors"
+              className="w-full border-2 border-black px-3 py-2 text-sm text-black focus:outline-none placeholder:text-gray-500 font-bold transition-colors"
+              style={{ 
+                // @ts-ignore
+                '--focus-bg': 'var(--primary-color)' 
+              }}
+              onFocus={(e) => e.target.style.backgroundColor = 'var(--primary-color)'}
+              onBlur={(e) => e.target.style.backgroundColor = ''}
             />
           </div>
 
@@ -296,7 +302,9 @@ export default function PostForm() {
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value as Category)}
-              className="w-full border-2 border-black px-3 py-2 text-sm text-black focus:bg-[#00ff00] focus:outline-none font-bold transition-colors appearance-none"
+              className="w-full border-2 border-black px-3 py-2 text-sm text-black focus:outline-none font-bold transition-colors appearance-none"
+              onFocus={(e) => e.target.style.backgroundColor = 'var(--primary-color)'}
+              onBlur={(e) => e.target.style.backgroundColor = ''}
             >
               {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -330,28 +338,31 @@ export default function PostForm() {
 
         {/* Action Column */}
         <div className="md:col-span-3 flex flex-col justify-end gap-3 border-t-2 md:border-t-0 md:border-l-2 border-black pt-4 md:pt-0 md:pl-6">
-           <div className="flex items-center gap-2 mb-auto">
-             <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageSelect}
-                accept="image/*"
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-1 flex items-center justify-center gap-2 border-2 border-black bg-white px-4 py-2 text-sm font-black text-black hover:bg-black hover:text-white transition-all shadow-[4px_4px_0_0_black] hover:shadow-none hover:translate-y-1"
-              >
-                <ImageIcon size={18} />
-                <span>添加封面</span>
-              </button>
-           </div>
+           {config.features.allowImageUploads && (
+             <div className="flex items-center gap-2 mb-auto">
+               <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageSelect}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1 flex items-center justify-center gap-2 border-2 border-black bg-white px-4 py-2 text-sm font-black text-black hover:bg-black hover:text-white transition-all shadow-[4px_4px_0_0_black] hover:shadow-none hover:translate-y-1"
+                >
+                  <ImageIcon size={18} />
+                  <span>添加封面</span>
+                </button>
+             </div>
+           )}
            
            <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 border-2 border-black bg-[#00ff00] px-4 py-3 text-sm font-black text-black shadow-[4px_4px_0_0_black] hover:bg-white hover:shadow-none hover:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full flex items-center justify-center gap-2 border-2 border-black px-4 py-3 text-sm font-black text-black shadow-[4px_4px_0_0_black] hover:bg-white hover:shadow-none hover:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            style={{ backgroundColor: 'var(--primary-color)' }}
           >
             {isSubmitting ? (
               <>

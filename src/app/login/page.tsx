@@ -81,7 +81,6 @@ export default function LoginPage() {
         if (error) throw error
         toast.success('登录成功')
         router.push('/')
-        router.refresh()
       }
     } catch (error: any) {
       toast.error(error.message || '操作失败')

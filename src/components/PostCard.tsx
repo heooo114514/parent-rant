@@ -11,7 +11,7 @@ import { createClient } from '@/utils/supabase/client'
 import MarkdownRenderer from './MarkdownRenderer'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
-import ReportModal from './ReportModal'
+import config from '../../parent-rant.config.json'
 
 const colorMap: Record<string, string> = {
   blue: 'bg-blue-100 border-black text-black shadow-[4px_4px_0_0_#3b82f6] hover:bg-blue-200 transition-colors',
@@ -25,13 +25,13 @@ const colorMap: Record<string, string> = {
 interface PostCardProps {
   post: Post
   truncate?: boolean
+  onReport?: () => void
 }
 
-export default function PostCard({ post: initialPost, truncate = true }: PostCardProps) {
+export default function PostCard({ post: initialPost, truncate = true, onReport }: PostCardProps) {
   const [post, setPost] = useState(initialPost)
   const [isLiking, setIsLiking] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const colorClass = colorMap[post.color] || colorMap.gray
   const supabase = createClient()
 
@@ -87,7 +87,7 @@ export default function PostCard({ post: initialPost, truncate = true }: PostCar
 
     const url = `${window.location.origin}/post/${post.id}`
     const shareData = {
-      title: 'ParentRant: 爸妈吐槽大会',
+      title: config.site.shareTitle,
       text: post.content.substring(0, 50) + '...',
       url: url,
     }
@@ -115,7 +115,7 @@ export default function PostCard({ post: initialPost, truncate = true }: PostCar
       <div className="mb-2 flex items-center justify-between">
         <span className={cn(
           "border-2 border-black px-2 py-0.5 text-xs font-black uppercase shadow-[2px_2px_0_0_black]",
-          post.category === 'school' ? 'bg-[#00ff00]' :
+          post.category === 'school' ? 'bg-[var(--primary-color)]' :
           post.category === 'homework' ? 'bg-yellow-300' :
           post.category === 'relationship' ? 'bg-pink-300' :
           post.category === 'funny' ? 'bg-cyan-300' :
@@ -129,7 +129,7 @@ export default function PostCard({ post: initialPost, truncate = true }: PostCar
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            setIsReportModalOpen(true)
+            onReport?.()
           }}
           className="text-black hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-1 font-bold"
           title="举报"
@@ -154,7 +154,7 @@ export default function PostCard({ post: initialPost, truncate = true }: PostCar
       
       <div className="mt-auto flex items-center justify-between text-sm">
         <div className="flex flex-col">
-          <span className="font-bold uppercase">{post.nickname || '匿名家长'}</span>
+          <span className="font-bold uppercase">{post.nickname || config.site.defaultNickname}</span>
           <span className="text-xs font-bold text-gray-500">
             {timeAgo}
           </span>
@@ -211,27 +211,11 @@ export default function PostCard({ post: initialPost, truncate = true }: PostCar
 
   if (truncate) {
     return (
-      <>
-        <Link href={`/post/${post.id}`} className="block h-full">
-          {Content}
-        </Link>
-        <ReportModal 
-          postId={post.id} 
-          isOpen={isReportModalOpen} 
-          onClose={() => setIsReportModalOpen(false)} 
-        />
-      </>
+      <Link href={`/post/${post.id}`} className="block h-full">
+        {Content}
+      </Link>
     )
   }
 
-  return (
-    <>
-      {Content}
-      <ReportModal 
-        postId={post.id} 
-        isOpen={isReportModalOpen} 
-        onClose={() => setIsReportModalOpen(false)} 
-      />
-    </>
-  )
+  return Content
 }

@@ -30,7 +30,7 @@ export default function Error({
         </h2>
         
         <div className="my-6 border-2 border-black bg-black p-4 text-left overflow-hidden">
-          <p className="font-mono text-xs text-[#00ff00] break-all">
+          <p className="font-mono text-xs text-[var(--primary-color)] break-all">
             &gt; ERROR_CODE: {error.digest || 'UNKNOWN_FAILURE'}
           </p>
           <p className="mt-2 font-mono text-xs text-white break-all">
@@ -45,7 +45,7 @@ export default function Error({
         <div className="flex flex-col gap-4">
           <button
             onClick={reset}
-            className="flex items-center justify-center gap-2 border-2 border-black bg-[#00ff00] px-6 py-3 font-black text-black transition-all hover:translate-y-1 hover:shadow-[4px_4px_0_0_black] hover:bg-white"
+            className="flex items-center justify-center gap-2 border-2 border-black bg-[var(--primary-color)] px-6 py-3 font-black text-black transition-all hover:translate-y-1 hover:shadow-[4px_4px_0_0_black] hover:bg-white"
           >
             <RefreshCcw size={20} />
             重试 (RETRY)
@@ -53,7 +53,7 @@ export default function Error({
           
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 border-2 border-black bg-white px-6 py-3 font-black text-black transition-all hover:translate-y-1 hover:shadow-[4px_4px_0_0_black] hover:bg-[#ffc0cb]"
+            className="flex items-center justify-center gap-2 border-2 border-black bg-white px-6 py-3 font-black text-black transition-all hover:translate-y-1 hover:shadow-[4px_4px_0_0_black] hover:bg-[var(--secondary-color)]"
           >
             <Home size={20} />
             回首页 (HOME)

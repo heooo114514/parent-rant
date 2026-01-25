@@ -24,8 +24,8 @@ export default function SortControl() {
           className={cn(
             "flex items-center gap-1.5 rounded-none px-3 py-1.5 text-sm font-bold transition-all border-2",
             currentSort === 'latest' 
-              ? "bg-[#00ff00] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" 
-              : "text-gray-500 border-transparent hover:bg-[#ffc0cb] hover:text-black hover:border-black"
+              ? "bg-[var(--primary-color)] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" 
+              : "text-gray-500 border-transparent hover:bg-[var(--secondary-color)] hover:text-black hover:border-black"
           )}
         >
           <Clock size={16} />
@@ -36,8 +36,8 @@ export default function SortControl() {
           className={cn(
             "flex items-center gap-1.5 rounded-none px-3 py-1.5 text-sm font-bold transition-all border-2",
             currentSort === 'hottest' 
-              ? "bg-[#ffc0cb] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" 
-              : "text-gray-500 border-transparent hover:bg-[#ffc0cb] hover:text-black hover:border-black"
+              ? "bg-[var(--secondary-color)] text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" 
+              : "text-gray-500 border-transparent hover:bg-[var(--secondary-color)] hover:text-black hover:border-black"
           )}
         >
           <Flame size={16} />

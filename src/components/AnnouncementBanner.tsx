@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { getActiveAnnouncements } from '@/app/actions/admin'
 import { Megaphone, X } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
+import config from '../../parent-rant.config.json'
 
 export default function AnnouncementBanner() {
   const [announcements, setAnnouncements] = useState<any[]>([])
@@ -30,10 +31,17 @@ export default function AnnouncementBanner() {
     return () => clearInterval(interval)
   }, [announcements.length])
 
-  if (!isVisible || announcements.length === 0) return null
+  if (!isVisible || (announcements.length === 0 && !config.site.announcement)) return null
+
+  const displayAnnouncements = announcements.length > 0 
+    ? announcements 
+    : [{ content: config.site.announcement }]
 
   return (
-    <div className="bg-[#00ff00] text-black border-b-2 border-black px-4 py-3 relative overflow-hidden font-mono font-bold">
+    <div 
+      className="text-black border-b-2 border-black px-4 py-3 relative overflow-hidden font-mono font-bold"
+      style={{ backgroundColor: 'var(--primary-color)' }}
+    >
       <div className="container mx-auto flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 flex-1 overflow-hidden">
           <div className="bg-black text-white p-1 border border-black">
@@ -48,7 +56,7 @@ export default function AnnouncementBanner() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
                 className="absolute inset-0 truncate text-sm sm:text-base flex items-center uppercase prose prose-sm prose-p:my-0 prose-p:inline prose-strong:text-black prose-a:text-blue-800 prose-a:underline max-w-none"
-                dangerouslySetInnerHTML={{ __html: announcements[currentIndex].content }}
+                dangerouslySetInnerHTML={{ __html: displayAnnouncements[currentIndex].content }}
               />
             </AnimatePresence>
           </div>

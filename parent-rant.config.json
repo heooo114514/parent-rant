@@ -1,15 +1,40 @@
 {
   "site": {
     "name": "吐了么",
-    "description": "爸妈吐槽大会",
-    "icp": "粤ICP备2024334085号"
+    "description": "家长管的严，讨厌中式教育？，来这里开喷",
+    "icp": "粤ICP备2024334085号",
+    "announcement": "欢迎来到吐了么！在这里你可以尽情吐槽你的爸妈，但是别被他们发现哦~",
+    "footer": "用 ❤️ 和 💢 吐槽父母的地方",
+    "demoModeTitle": "⚠️ 演示模式启动",
+    "demoModeMessage": "由于未配置有效的数据库连接，当前显示的是演示数据。请配置 Supabase 以启用完整火力。",
+    "emptyTitle": "一片荒芜",
+    "emptyMessage": "快来当第一个开喷的勇士！",
+    "notFoundTitle": "没找到",
+    "notFoundMessage": "换个词喷喷看？",
+    "defaultNickname": "匿名家长",
+    "shareTitle": "ParentRant: 爸妈吐槽大会"
+  },
+  "content": {
+    "rules": [
+      "别骂太难听，大家都是苦命人，留点口德。",
+      "保护隐私，别爆真实姓名，小心被爸妈发现混合双打。",
+      "发疯要适度，吐槽是为了更好地活着。",
+      "相互理解，每位家长都不容易（虽然有时候真的很气人）。"
+    ],
+    "sponsorship": {
+      "title": "投喂开发者",
+      "p1": "吐了么 是一个由爱心家长（也是受害者）用爱发电建立的。",
+      "p2": "服务器要钱，咖啡要钱，被爸妈气得掉头发植发也要钱... 赏口饭吃吧！",
+      "button": "请喝冰美式消消火 ☕"
+    }
   },
   "security": {
     "adminEmails": [
       "3169581862@qq.com"
     ],
     "adminPassword": "cjl20100923",
-    "enableWhitelist": true
+    "enableWhitelist": true,
+    "maxPostsPerDay": 10
   },
   "email": {
     "provider": "supabase",
@@ -24,6 +49,13 @@
   "features": {
     "allowImageUploads": true,
     "allowAnonymousComments": true,
-    "requireEmailVerification": false
+    "requireEmailVerification": false,
+    "enableComments": true,
+    "postsPerPage": 12
+  },
+  "ui": {
+    "primaryColor": "#00ff00",
+    "secondaryColor": "#ffc0cb",
+    "neoBrutalism": true
   }
 }

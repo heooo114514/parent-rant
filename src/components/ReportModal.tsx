@@ -61,7 +61,7 @@ export default function ReportModal({ postId, isOpen, onClose }: ReportModalProp
           >
             <div className="p-6">
               <h3 className="text-xl font-black text-black mb-2 uppercase tracking-tight">
-                <RoughNotation type="highlight" show={true} color="#00ff00" padding={2} animationDuration={1000}>
+                <RoughNotation type="highlight" show={true} color="var(--primary-color)" padding={2} animationDuration={1000}>
                   这是要搞事情？
                 </RoughNotation>
               </h3>
@@ -75,7 +75,7 @@ export default function ReportModal({ postId, isOpen, onClose }: ReportModalProp
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="快说说，这家伙哪里不对劲..."
                   rows={4}
-                  className="w-full rounded-none border-2 border-black p-3 text-sm font-mono focus:outline-none focus:shadow-[4px_4px_0px_0px_#ffc0cb] transition-all"
+                  className="w-full rounded-none border-2 border-black p-3 text-sm font-mono focus:outline-none focus:shadow-[4px_4px_0px_0px_var(--secondary-color)] transition-all"
                   autoFocus
                 />
                 
@@ -91,7 +91,7 @@ export default function ReportModal({ postId, isOpen, onClose }: ReportModalProp
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 rounded-none border-2 border-black bg-[#00ff00] px-4 py-2 text-sm font-black text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#00cc00] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-none border-2 border-black bg-[var(--primary-color)] px-4 py-2 text-sm font-black text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[var(--primary-color)] hover:brightness-90 hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50"
                   >
                     {isSubmitting && <Loader2 size={14} className="animate-spin" />}
                     正义执行！

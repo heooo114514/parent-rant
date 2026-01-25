@@ -6,11 +6,9 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: ['*'], // 允许所有来源，仅用于开发环境
     },
+    allowedDevOrigins: ['192.168.31.196', 'localhost:3000', '127.0.0.1:3000', '127.0.0.1'],
   },
   // 对于非 server actions 的普通请求
-  // 注意：Next.js 15 可能不需要显式配置 allowedDevOrigins 除非是特定的高级用法，
-  // 但为了消除警告，我们可以加上具体的 IP 或通配符如果支持的话。
-  // 不过根据文档，allowedDevOrigins 是顶层配置。
 };
 
 export default nextConfig;

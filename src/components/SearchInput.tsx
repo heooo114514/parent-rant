@@ -44,7 +44,7 @@ export default function SearchInput() {
         }}
         onBlur={() => handleSearch(value)}
         placeholder="搜索吐槽..."
-        className="w-full rounded-none border-2 border-black bg-white py-2 pl-9 pr-4 text-sm text-black placeholder:text-gray-500 font-mono focus:bg-[#ffc0cb] focus:outline-none focus:shadow-[4px_4px_0px_0px_#00ff00] transition-all"
+        className="w-full rounded-none border-2 border-black bg-white py-2 pl-9 pr-4 text-sm text-black placeholder:text-gray-500 font-mono focus:bg-[var(--secondary-color)] focus:outline-none focus:shadow-[4px_4px_0px_0px_var(--primary-color)] transition-all"
       />
     </div>
   )

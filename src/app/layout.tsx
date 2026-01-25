@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from 'sonner';
 import "./globals.css";
+import config from '../../parent-rant.config.json'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "吐了么: 爸妈吐槽大会 | 学生反击基地",
-  description: "作业写不完？家长太唠叨？老师管太宽？来这里发疯发癫，寻找你的吐槽搭子！匿名开喷，安全解压。",
+  title: `${config.site.name}: ${config.site.description}`,
+  description: config.site.description,
 };
 
 export default function RootLayout({
@@ -27,6 +28,11 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{
+          // @ts-ignore
+          '--primary-color': config.ui.primaryColor,
+          '--secondary-color': config.ui.secondaryColor,
+        }}
       >
         {children}
         <Toaster position="top-center" richColors />

@@ -12,7 +12,7 @@ export default function NotFound() {
         </p>
         <Link 
           href="/"
-          className="inline-block border-2 border-black bg-[#00ff00] px-8 py-4 text-xl font-black text-black transition-all hover:translate-y-1 hover:shadow-[4px_4px_0_0_black] hover:bg-white"
+          className="inline-block border-2 border-black bg-[var(--primary-color)] px-8 py-4 text-xl font-black text-black transition-all hover:translate-y-1 hover:shadow-[4px_4px_0_0_black] hover:bg-white"
         >
           GO BACK HOME
         </Link>

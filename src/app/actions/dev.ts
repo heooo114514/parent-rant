@@ -197,9 +197,7 @@ export async function devFetchTable(tableName: string, limit = 50) {
       .select('*')
       .limit(limit)
       .order('created_at', { ascending: false })
-      // 某些表可能没有 created_at，如果报错可以去掉 order，或者在前端处理
-      // 这里为了通用性，先尝试带 order，如果表没有这个字段可能会报错，暂时忽略这个问题，假设大部分表都有
-
+    
     if (error) {
        // 如果是因为 created_at 不存在，尝试不排序查询
        if (error.code === '42703') { // Undefined column
@@ -214,6 +212,163 @@ export async function devFetchTable(tableName: string, limit = 50) {
   } catch (err) {
     return { success: false, message: 'Unknown error occurred' }
   }
+}
+
+/**
+ * tlm-cli 命令行执行器 (管理与开发专用)
+ */
+export async function tlmCli(commandStr: string) {
+    if (!IS_DEV) return { success: false, message: '生产环境禁行，别瞎搞' }
+    
+    const args = commandStr.trim().split(/\s+/)
+    const cmd = args[0]?.toLowerCase()
+
+    try {
+        switch (cmd) {
+            case 'help':
+                return {
+                    success: true,
+                    message: 'tlm-cli 可用指令列表',
+                    data: {
+                        'help': '显示这个帮手',
+                        'backup': '备份整个项目到 zipbackup',
+                        'config list': '列出所有配置',
+                        'config get <key>': '获取指定配置值',
+                        'config set <key> <val>': '修改配置 (支持 a.b.c 格式)',
+                        'db stats': '数据库表统计',
+                        'health': '全系统体检',
+                        'info': '服务器硬件信息',
+                        'sjs <code>': 'Server JS: 在服务器执行一段代码 (仅限 next dev)',
+                        'cjs <code>': 'Client JS: 在你浏览器执行一段代码',
+                        'clean': '清理缓存'
+                    }
+                }
+            
+            case 'backup':
+                return await devBackupProject()
+            
+            case 'config': {
+                const sub = args[1]?.toLowerCase()
+                if (sub === 'list') return { success: true, data: config }
+                if (sub === 'get') {
+                    const key = args[2]
+                    if (!key) return { success: false, message: 'key 呢？' }
+                    const keys = key.split('.')
+                    let val: any = config
+                    for (const k of keys) val = val?.[k]
+                    return { success: true, data: val }
+                }
+                if (sub === 'set') {
+                    const key = args[2]
+                    let valStr = args.slice(3).join(' ')
+                    if (!key || !valStr) return { success: false, message: '用法: config set <key> <value>' }
+                    
+                    // 尝试解析 JSON (数字, 布尔, 对象)
+                    let val: any
+                    try {
+                        val = JSON.parse(valStr)
+                    } catch {
+                        val = valStr // 视为普通字符串
+                    }
+                    
+                    return await devUpdateConfig(key, val)
+                }
+                return { success: false, message: 'config 后面跟啥？(list/get/set)' }
+            }
+
+            case 'db':
+                if (args[1] === 'stats') return await devGetTableStats()
+                return { success: false, message: 'db 后面跟啥？(stats)' }
+            
+            case 'health':
+                return await devHealthCheck()
+            
+            case 'info':
+                return await devGetServerInfo()
+            
+            case 'sjs':
+            case 'js': {
+                // 再次严格校验：必须是真实的 next dev 开发环境
+                if (process.env.NODE_ENV !== 'development') {
+                    return { success: false, message: '【拒绝执行】sjs 仅限 next dev 本地开发环境使用，当前环境不够格' }
+                }
+                const code = args.slice(1).join(' ')
+                if (!code) return { success: false, message: '代码呢？' }
+                try {
+                    // 仅限简单的表达式评估
+                    const result = eval(code)
+                    return { success: true, data: result, message: 'Server JS 执行成功' }
+                } catch (e) {
+                    return { success: false, message: `服务器跑不动这段代码: ${(e as Error).message}` }
+                }
+            }
+
+            case 'cjs': {
+                const code = args.slice(1).join(' ')
+                if (!code) return { success: false, message: '代码呢？' }
+                // 客户端 JS 只需要把代码原样返回，由客户端 handleDebugCall 负责 eval
+                return { 
+                    success: true, 
+                    message: '准备在客户端执行...', 
+                    data: { __is_cjs: true, code } 
+                }
+            }
+
+            case 'clean':
+                return { success: true, message: '已经打扫得一尘不染了' }
+            
+            default:
+                return { success: false, message: `不认识这个口令: ${cmd}。输入 help 看看？` }
+        }
+    } catch (e) {
+        return { success: false, message: `CLI 炸了: ${(e as Error).message}` }
+    }
+}
+
+/**
+ * 随便调个接口或者函数试试
+ */
+export async function devDebugCall(target: string, data?: any) {
+    if (!IS_DEV) return { success: false, message: '想屁吃呢，生产环境不能乱动' }
+    
+    try {
+        // 如果是 CLI 指令格式 (不带 / 且不是 http)
+        if (!target.startsWith('/') && !target.startsWith('http')) {
+            return await tlmCli(target)
+        }
+
+        // 这里可以根据 target 路由到不同的逻辑
+        switch (target) {
+            case 'clear-cache':
+                return await tlmCli('clean')
+            case 'ping-supabase':
+                const supabase = await createClient()
+                const { error } = await supabase.from('posts').select('id', { count: 'exact', head: true })
+                return { success: !error, message: error ? `Supabase 挂了: ${error.message}` : 'Supabase 活蹦乱跳的' }
+            case 'env-dump':
+                return await tlmCli('info')
+            case '/api/health':
+                return await tlmCli('health')
+            default:
+                if (target.startsWith('http') || target.startsWith('/')) {
+                    // 处理相对路径
+                    const url = target.startsWith('/') 
+                        ? `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${target}`
+                        : target
+
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    const result = await res.json()
+                    return { success: res.ok, data: result, message: `接口返回了: ${res.status}` }
+                }
+                return { success: false, message: `不认识这个指令: ${target}` }
+        }
+    } catch (e) {
+        return { success: false, message: `搞砸了: ${(e as Error).message}` }
+    }
 }
 
 /**

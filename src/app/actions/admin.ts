@@ -4,36 +4,29 @@ import { createClient } from '@/utils/supabase/server'
 import config from '../../../parent-rant.config.json'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
+import fs from 'fs/promises'
+import path from 'path'
 
 /**
  * Checks if the current user is an admin
  */
 async function isAdmin() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  // Check for bypass cookie
+  // Check for bypass cookie or development mode
   const cookieStore = await cookies()
   const bypassCookie = cookieStore.get('admin_bypass_session')
   const isBypassAuth = bypassCookie?.value === 'true'
+  const isDev = process.env.NODE_ENV === 'development'
   
-  if (isBypassAuth) return true
+  if (isBypassAuth || isDev) return true
 
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
   if (!user || !user.email) {
-    console.log('isAdmin check failed: No user or email found')
-    // Check if we are in development environment and running on localhost
-    // This is a workaround for local development where auth might be tricky or cookies not passing correctly in server actions sometimes
-    if (process.env.NODE_ENV === 'development') {
-        console.log('Development mode: bypassing strict auth check if user is null but request is local')
-        return true
-    }
     return false
   }
   
   const isAllowed = config.security.adminEmails.includes(user.email)
-  if (!isAllowed) {
-    console.log(`isAdmin check failed: Email ${user.email} is not in whitelist: ${JSON.stringify(config.security.adminEmails)}`)
-  }
   return isAllowed
 }
 
@@ -188,6 +181,25 @@ export async function getReports() {
   }))
 
   return { success: true, data: reports }
+}
+
+/**
+ * Update configuration
+ */
+export async function updateConfig(newConfig: any) {
+  if (!(await isAdmin())) {
+    return { success: false, message: 'Unauthorized' }
+  }
+
+  try {
+    const configPath = path.join(process.cwd(), 'parent-rant.config.json')
+    await fs.writeFile(configPath, JSON.stringify(newConfig, null, 2))
+    revalidatePath('/')
+    return { success: true, message: 'Configuration updated successfully' }
+  } catch (error) {
+    console.error('updateConfig error:', error)
+    return { success: false, message: 'Failed to update configuration' }
+  }
 }
 
 /**

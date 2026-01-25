@@ -58,17 +58,17 @@ export default async function PostDetailPage({ params }: PageProps) {
 
   if (!post) {
     return (
-      <main className="container mx-auto flex flex-col items-center justify-center px-4 py-20">
+      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-20">
         <h1 className="text-2xl font-bold text-slate-900">未找到该吐槽</h1>
         <Link href="/" className="mt-4 text-blue-600 hover:underline">
           返回首页
         </Link>
-      </main>
+      </div>
     )
   }
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 pb-12">
       <div className="mb-6">
         <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-black uppercase">
           <ArrowLeft size={16} />
@@ -88,7 +88,7 @@ export default async function PostDetailPage({ params }: PageProps) {
           
           <PostCard post={post} truncate={false} />
 
-          <div className="mt-8 rounded-none bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] border-2 border-black">
+          <div className="mt-12 mb-16 rounded-none bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] border-2 border-black relative z-0">
             <h2 className="mb-6 text-2xl font-black text-black uppercase tracking-tight">
               评论 ({comments.length})
             </h2>
@@ -105,6 +105,6 @@ export default async function PostDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

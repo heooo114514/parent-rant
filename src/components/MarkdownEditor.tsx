@@ -1,12 +1,12 @@
 'use client'
 
 import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import Placeholder from '@tiptap/extension-placeholder'
-import Image from '@tiptap/extension-image'
-import Link from '@tiptap/extension-link'
-import Underline from '@tiptap/extension-underline'
-import TextAlign from '@tiptap/extension-text-align'
+import { StarterKit } from '@tiptap/starter-kit'
+import { Placeholder } from '@tiptap/extension-placeholder'
+import { Image } from '@tiptap/extension-image'
+import { Link } from '@tiptap/extension-link'
+import { Underline } from '@tiptap/extension-underline'
+import { TextAlign } from '@tiptap/extension-text-align'
 import { Color } from '@tiptap/extension-color'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Highlight } from '@tiptap/extension-highlight'
@@ -38,6 +38,8 @@ export default function MarkdownEditor({
 }: MarkdownEditorProps) {
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false)
+  const colors = ['#000000', '#EF4444', '#10B981', '#3B82F6', '#8B5CF6', '#F59E0B']
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -46,6 +48,11 @@ export default function MarkdownEditor({
         heading: {
           levels: [1, 2, 3],
         },
+        // 排除可能冲突的默认扩展
+        // @ts-ignore
+        link: false,
+        // @ts-ignore
+        underline: false,
       }),
       Placeholder.configure({
         placeholder: placeholder || '写下你的想法...',
@@ -69,7 +76,7 @@ export default function MarkdownEditor({
       Highlight.configure({
         multicolor: true,
       }),
-    ],
+    ] as any[],
     content,
     editorProps: {
       attributes: {
@@ -149,7 +156,7 @@ export default function MarkdownEditor({
       onClick={onClick}
       disabled={disabled}
       className={`p-2 border-2 border-transparent hover:border-black transition-all ${
-        isActive ? 'bg-[#00ff00] text-black border-black shadow-[2px_2px_0_0_black]' : 'text-black hover:bg-white hover:shadow-[2px_2px_0_0_black]'
+        isActive ? 'bg-[var(--primary-color)] text-black border-black shadow-[2px_2px_0_0_black]' : 'text-black hover:bg-white hover:shadow-[2px_2px_0_0_black]'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       title={title}
     >
@@ -158,9 +165,6 @@ export default function MarkdownEditor({
   )
 
   const Divider = () => <div className="w-0.5 h-6 bg-black mx-1" />
-
-  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false)
-  const colors = ['#000000', '#EF4444', '#10B981', '#3B82F6', '#8B5CF6', '#F59E0B']
 
   return (
     <div className={`border-2 border-black bg-white flex flex-col ${className}`}>
@@ -202,7 +206,7 @@ export default function MarkdownEditor({
                     <button
                       key={color}
                       onClick={() => {
-                        editor.chain().focus().setColor(color).run()
+                        ;(editor.chain().focus() as any).setColor(color).run()
                         setIsColorPickerOpen(false)
                       }}
                       className="w-6 h-6 border-2 border-black hover:scale-110 transition-transform"
@@ -215,7 +219,7 @@ export default function MarkdownEditor({
             )}
           </div>
           <ToolbarButton
-            onClick={() => editor.chain().focus().toggleHighlight().run()}
+            onClick={() => (editor.chain().focus() as any).toggleHighlight().run()}
             isActive={editor.isActive('highlight')}
             title="高亮"
           >
@@ -260,7 +264,7 @@ export default function MarkdownEditor({
             <Italic size={18} />
           </ToolbarButton>
           <ToolbarButton
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            onClick={() => (editor.chain().focus() as any).toggleUnderline().run()}
             isActive={editor.isActive('underline')}
             title="下划线"
           >
@@ -279,21 +283,21 @@ export default function MarkdownEditor({
 
         <div className="flex items-center gap-0.5">
           <ToolbarButton
-            onClick={() => editor.chain().focus().setTextAlign('left').run()}
+            onClick={() => (editor.chain().focus() as any).setTextAlign('left').run()}
             isActive={editor.isActive({ textAlign: 'left' })}
             title="左对齐"
           >
             <AlignLeft size={18} />
           </ToolbarButton>
           <ToolbarButton
-            onClick={() => editor.chain().focus().setTextAlign('center').run()}
+            onClick={() => (editor.chain().focus() as any).setTextAlign('center').run()}
             isActive={editor.isActive({ textAlign: 'center' })}
             title="居中"
           >
             <AlignCenter size={18} />
           </ToolbarButton>
           <ToolbarButton
-            onClick={() => editor.chain().focus().setTextAlign('right').run()}
+            onClick={() => (editor.chain().focus() as any).setTextAlign('right').run()}
             isActive={editor.isActive({ textAlign: 'right' })}
             title="右对齐"
           >

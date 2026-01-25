@@ -13,6 +13,7 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
     "@tailwindcss/typography": "^0.5.19",
+    "@tiptap/core": "^3.16.0",
     "@tiptap/extension-color": "^3.16.0",
     "@tiptap/extension-highlight": "^3.16.0",
     "@tiptap/extension-image": "^3.16.0",
@@ -51,6 +52,12 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^4.3.5"
+  },
+  "overrides": {
+    "@tiptap/core": "^3.16.0"
+  },
+  "resolutions": {
+    "@tiptap/core": "^3.16.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
